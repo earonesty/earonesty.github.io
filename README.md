@@ -1,2 +1,3 @@
 # earonesty.github.io
-pages
+
+[ Decompose number into hex flags] (https://earonesty.github.io/decompose_hex.html)
