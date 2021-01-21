@@ -14,3 +14,7 @@ Personal:
 * [Personal website](https://documentroot.com)
 * [Twitter](https://twitter.com/simulx)
 
+Misc:
+
+ * [Bitcoin Whitepaper](bitcoin.pdf)
+
