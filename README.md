@@ -20,4 +20,5 @@ Personal:
 Misc:
 
  * [Bitcoin Whitepaper](bitcoin.pdf)
+ * [Is Lambda Sentient](is-lamda-sentient-an-interview.pdf)
 
