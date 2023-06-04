@@ -5,67 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Groups</title>
     <style>
-        body {
-            display: grid;
-            gap: 1em;
-            padding: 1em;
-            font-family: Arial, sans-serif;
+    body {
+        display: grid;
+        gap: 1em;
+        padding: 1em;
+        font-family: Arial, sans-serif;
+        background-color: #000;
+        color: #0ff; /* Neon cyan for text */
+    }
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    @media only screen and (max-width: 600px) {
+        .container {
+            flex-direction: column;
         }
         .chat-group {
-            border: 1px solid #ccc;
-            padding: 1em;
-            border-radius: 5px;
+            margin: 1em auto; /* top/bottom | left/right */
         }
-        .chat-group h2 {
-            margin: 0 0 1em;
-        }
-        .messages {
-            display: none;
-            margin-top: 1em;
-        }
+    }
+    .chat-group {
+        flex: 1 0 20em; /* grow | shrink | base-width */
+        margin: 1em;
+        border: 1px solid #0ff; /* Neon cyan for borders */
+        padding: 1em;
+        border-radius: 5px;
+        background-color: #111; /* Slightly lighter black for chat group backgrounds */
+    }
+
+    .chat-group h2 {
+        margin: 0 0 1em;
+        color: #f0f; /* Neon magenta for headings */
+    }
+
+    .group-image {
+        max-width: 50%;
+        max-height: 20vh;
+        object-fit: contain;
+    }
+
+    .messages {
+        display: none;
+        margin-top: 1em;
+    }
+
+    .message {
+        border: 1px solid #0ff; /* Neon cyan for borders */
+        padding: 1em;
+        border-radius: 5px;
+        margin-top: 1em;
+        background-color: #222; /* Even lighter black for messages */
+    }
+
+    button {
+        background-color: #0ff; /* Neon cyan for buttons */
+        color: #000; /* Black text on buttons */
+        border: none;
+        padding: 0.5em 1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #f0f; /* Neon magenta for button hover state */
+    }
+
     </style>
 </head>
 <body>
+    <h1>Top Nostr Public Chat Groups.</h1>
     <script>
         async function fetchData(url) {
             const response = await fetch(url);
             const data = await response.json();
             return data;
         }
+
+        function formatTimestamp(epoch) {
+            const date = new Date(epoch * 1000);
+            return date.toLocaleString();
+        }
+
+
+        function addImage(parentElement, imageUrl, ref) {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.onerror = function() { this.style.display = 'none'; }; // Hide the image if it fails to load
+            img.classList.add('group-image');
+            parentElement.insertBefore(img, ref);
+        }
         
         function createChatGroupSection(group) {
             const section = document.createElement('div');
+            let content;
+            content = JSON.parse(group.ev.content);
+            if (group.up.length > 0) {
+                const mostRecentUp = group.up.reduce((a, b) => a.created_at > b.created_at ? a : b);
+                try {
+                    content = JSON.parse(mostRecentUp.content);
+                } catch  {
+                }
+            }
+            
             section.className = 'chat-group';
+
             section.innerHTML = `
-                <h2>${group.ev.content.name}</h2>
-                <p>${group.ev.content.about}</p>
-                <img src="${group.ev.content.picture}" alt="${group.ev.content.name}">
+                <h2 class="group-name">${content.name}</h2>
+                <p class="group-about">${content.about}</p>
                 <p>Count: ${group.cnt}</p>
                 <button>Show Messages</button>
                 <div class="messages"></div>
             `;
+            let aboutElement = section.querySelector('.group-about');
+
+            addImage(section, content.picture, aboutElement)
+
             section.querySelector('button').addEventListener('click', function() {
                 const messagesDiv = this.nextElementSibling;
                 messagesDiv.style.display = messagesDiv.style.display === 'none' ? 'block' : 'none';
             });
             const messagesDiv = section.querySelector('.messages');
             group.msg.forEach(msg => {
-                const p = document.createElement('p');
-                p.textContent = msg.content;
-                messagesDiv.appendChild(p);
+                const div = document.createElement('div');
+                div.className = 'message';
+                div.innerHTML = `
+                    <p>${msg.content}</p>
+                    <small><b>${formatTimestamp(msg.created_at)}</b></small>
+                `;
+                messagesDiv.appendChild(div);
             });
             return section;
         }
 
         const url = 'https://arcadelabsinc.github.io/arcade-static/top.json';
         
+        // Create container
+        const container = document.createElement('div');
+        container.classList.add('container');
+
         fetchData(url).then(data => {
             for (const key in data) {
                 const chatGroup = data[key];
-                const section = createChatGroupSection(chatGroup);
-                document.body.appendChild(section);
+                try {
+                    const section = createChatGroupSection(chatGroup);
+                    container.appendChild(section);
+                } catch {
+                }
             }
         });
+
+        document.body.appendChild(container);
     </script>
 </body>
 </html>
