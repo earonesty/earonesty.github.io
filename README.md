@@ -3,7 +3,7 @@
 Tools:
 
 * [Decompose number into hex flags](https://earonesty.github.io/decompose_hex.html)
-
+* [Top nostr sites](https://earonesty.github.io/top-nostr.html)
 Code:
 
 * [Gists](https://gist.github.com/earonesty)
