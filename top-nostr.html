@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Groups</title>
+    <style>
+        body {
+            display: grid;
+            gap: 1em;
+            padding: 1em;
+            font-family: Arial, sans-serif;
+        }
+        .chat-group {
+            border: 1px solid #ccc;
+            padding: 1em;
+            border-radius: 5px;
+        }
+        .chat-group h2 {
+            margin: 0 0 1em;
+        }
+        .messages {
+            display: none;
+            margin-top: 1em;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        async function fetchData(url) {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data;
+        }
+        
+        function createChatGroupSection(group) {
+            const section = document.createElement('div');
+            section.className = 'chat-group';
+            section.innerHTML = `
+                <h2>${group.ev.content.name}</h2>
+                <p>${group.ev.content.about}</p>
+                <img src="${group.ev.content.picture}" alt="${group.ev.content.name}">
+                <p>Count: ${group.cnt}</p>
+                <button>Show Messages</button>
+                <div class="messages"></div>
+            `;
+            section.querySelector('button').addEventListener('click', function() {
+                const messagesDiv = this.nextElementSibling;
+                messagesDiv.style.display = messagesDiv.style.display === 'none' ? 'block' : 'none';
+            });
+            const messagesDiv = section.querySelector('.messages');
+            group.msg.forEach(msg => {
+                const p = document.createElement('p');
+                p.textContent = msg.content;
+                messagesDiv.appendChild(p);
+            });
+            return section;
+        }
+
+        const url = 'https://arcadelabsinc.github.io/arcade-static/top.json';
+        
+        fetchData(url).then(data => {
+            for (const key in data) {
+                const chatGroup = data[key];
+                const section = createChatGroupSection(chatGroup);
+                document.body.appendChild(section);
+            }
+        });
+    </script>
+</body>
+</html>
