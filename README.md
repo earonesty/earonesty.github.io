@@ -1,5 +1,14 @@
 # earonesty.github.io
 
+Company:
+
+* [AI powered code review assistant](https://coderev.q32.com)
+* [AI powered flowchart generator](https://bobchart.com)
+* [ML powered knapsack schedule problem solver for camps](https://www.schedule.camp)
+* [Social media video downloader](https://zypley.com)
+* [Shipping tracking number tool](https://trackj.com)
+* [Personal weblog](https://documentroot.com)
+
 Tools:
 
 * [Decompose number into hex flags](https://earonesty.github.io/decompose_hex.html)
