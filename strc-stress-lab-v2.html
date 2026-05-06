@@ -1,0 +1,1629 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STRC Stress Lab</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+:root {
+    --bg: #0b0f14;
+    --panel: #111821;
+    --panel2: #151e29;
+    --panel3: #0f151d;
+    --text: #d8e1ec;
+    --muted: #8fa1b3;
+    --muted2: #657789;
+    --border: #273342;
+    --accent: #6ea8fe;
+    --good: #7bd88f;
+    --warn: #ffd166;
+    --bad: #ff6b6b;
+    --purple: #c792ea;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); }
+body { overflow-y: scroll; }
+button, input, select, textarea { font: inherit; }
+button {
+    background: #1b2735;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 8px 11px;
+    cursor: pointer;
+}
+button:hover { border-color: #3e526b; background: #223044; }
+button.primary { background: #174a8b; border-color: #2b68aa; }
+button.danger { background: #3a1820; border-color: #7a2f3c; }
+button.small { padding: 5px 8px; font-size: 12px; }
+input, select, textarea {
+    background: #0b1118;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 9px;
+}
+textarea { width: 100%; min-height: 180px; font-family: var(--mono); font-size: 12px; resize: vertical; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border-bottom: 1px solid var(--border); padding: 7px 8px; text-align: left; vertical-align: middle; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; }
+td { font-size: 13px; }
+code, .mono { font-family: var(--mono); }
+.app {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    min-height: 100vh;
+}
+.sidebar {
+    border-right: 1px solid var(--border);
+    background: #091018;
+    padding: 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+.main { padding: 14px; min-width: 0; }
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.title h1 { margin: 0; font-size: 18px; letter-spacing: .02em; }
+.title .sub { color: var(--muted); margin-top: 3px; font-size: 12px; }
+.statusbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+}
+.pill {
+    border: 1px solid var(--border);
+    background: var(--panel3);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 5px 8px;
+}
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+.panel h2 {
+    margin: 0;
+    padding: 10px 12px;
+    font-size: 13px;
+    background: var(--panel2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.panel .body { padding: 11px 12px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.formrow { margin-bottom: 9px; }
+.formrow label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+.formrow input, .formrow select { width: 100%; }
+.actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.note { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.kpi {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px;
+}
+.kpi .label { color: var(--muted); font-size: 12px; }
+.kpi .value { font-family: var(--mono); font-size: 22px; margin-top: 6px; }
+.kpi .hint { color: var(--muted2); font-size: 11px; margin-top: 3px; }
+.good { color: var(--good); }
+.warn { color: var(--warn); }
+.bad { color: var(--bad); }
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.chart {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    min-height: 360px;
+}
+.full { grid-column: 1 / -1; }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.tab { font-size: 12px; }
+.tab.active { background: #263850; border-color: #4b6d96; }
+.hidden { display: none !important; }
+.source-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 74px;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+.source-row input { font-size: 12px; }
+.runlog {
+    height: 150px;
+    overflow-y: auto;
+    background: #05080c;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #a8b8ca;
+    white-space: pre-wrap;
+}
+.matrix td, .matrix th { text-align: right; font-family: var(--mono); font-size: 12px; }
+.matrix th:first-child, .matrix td:first-child { text-align: left; font-family: var(--sans); }
+input[type="range"] { padding: 0; }
+.slider-row {
+    display: grid;
+    grid-template-columns: 1fr 76px;
+    gap: 8px;
+    align-items: end;
+}
+@media (max-width: 1100px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="header">
+            <div class="title">
+                <h1>STRC Stress Lab</h1>
+                <div class="sub">single-page regime simulator</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Run Control</h2>
+            <div class="body">
+                <div class="formrow">
+                    <label>Scenario preset</label>
+                    <select id="preset">
+                        <option value="base" selected>Base case</option>
+                        <option value="bear">BTC bear market</option>
+                        <option value="macro">Macro risk-off</option>
+                        <option value="funding">Funding stress</option>
+                        <option value="crisis">Liquidity crisis</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Paths</label>
+                        <input id="paths" type="number" min="100" max="100000" step="100" value="10000">
+                    </div>
+                    <div class="formrow">
+                        <label>Horizon, months</label>
+                        <input id="months" type="number" min="3" max="120" step="1" value="36">
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Time step</label>
+                        <select id="stepMode">
+                            <option value="monthly" selected>monthly</option>
+                            <option value="weekly">weekly</option>
+                        </select>
+                    </div>
+                    <div class="formrow">
+                        <label>Seed</label>
+                        <input id="seed" type="number" step="1" value="130019">
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="primary" id="runBtn">Run Simulation</button>
+                    <button id="loadBtn">Load Market Data</button>
+                    <button id="saveBtn">Save</button>
+                    <button id="exportBtn">Export</button>
+                </div>
+                <div class="formrow" style="margin-top:10px">
+                    <label>Status</label>
+                    <div id="runlog" class="runlog"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Structure</h2>
+            <div class="body">
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>BTC holdings</label>
+                        <input id="btcHoldings" type="number" value="818334">
+                    </div>
+                    <div class="formrow">
+                        <label>BTC start price</label>
+                        <input id="btcStart" type="number" value="90000">
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Common market cap, $</label>
+                        <input id="commonMarketCap" type="number" value="80000000000">
+                    </div>
+                    <div class="formrow">
+                        <label>Cash reserve, $</label>
+                        <input id="cashReserve" type="number" value="2500000000">
+                    </div>
+                </div>
+                <details>
+                    <summary class="note" style="cursor:pointer;margin:4px 0 8px">Preferred and debt inputs</summary>
+                    <div class="grid2">
+                        <div class="formrow">
+                            <label>Debt, $</label>
+                            <input id="debt" type="number" value="8200000000">
+                        </div>
+                        <div class="formrow">
+                            <label>Preferred notional, $</label>
+                            <input id="prefNotional" type="number" value="8500000000">
+                        </div>
+                    </div>
+                    <div class="grid2">
+                        <div class="formrow">
+                            <label>Preferred dividend</label>
+                            <input id="divRate" type="number" value="0.115" step="0.001">
+                        </div>
+                        <div class="formrow">
+                            <label>Debt interest</label>
+                            <input id="debtInterest" type="number" value="0.015" step="0.001">
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Top-Level Stress Levers</h2>
+            <div class="body">
+                <div class="formrow">
+                    <label>BTC pressure</label>
+                    <div class="slider-row">
+                        <input id="btcPressure" type="range" min="0" max="1" step="0.01" value="0.35">
+                        <input id="btcPressureN" type="number" min="0" max="1" step="0.01" value="0.35">
+                    </div>
+                </div>
+                <div class="formrow">
+                    <label>Macro liquidity pressure</label>
+                    <div class="slider-row">
+                        <input id="macroPressure" type="range" min="0" max="1" step="0.01" value="0.25">
+                        <input id="macroPressureN" type="number" min="0" max="1" step="0.01" value="0.25">
+                    </div>
+                </div>
+                <div class="formrow">
+                    <label>Market confidence fragility</label>
+                    <div class="slider-row">
+                        <input id="confidenceFragility" type="range" min="0" max="1" step="0.01" value="0.35">
+                        <input id="confidenceFragilityN" type="number" min="0" max="1" step="0.01" value="0.35">
+                    </div>
+                </div>
+                <p class="note">The model derives STRC discount and funding stress from confidence, runway, mNAV, macro pressure, and BTC stress. There is no fixed “STRC stress price” input in the main workflow.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Automatic Calibration</h2>
+            <div class="body">
+                <div class="formrow">
+                    <label>BTC volatility</label>
+                    <select id="btcVolMode">
+                        <option value="auto" selected>Auto from historical data</option>
+                        <option value="manual">Manual override</option>
+                    </select>
+                </div>
+                <div class="formrow hidden" id="btcVolManualRow">
+                    <label>BTC annual volatility override</label>
+                    <input id="btcVolOverride" type="number" value="0.65" step="0.01">
+                </div>
+                <div class="formrow">
+                    <label>STRC pricing model</label>
+                    <select id="strcModelMode">
+                        <option value="endogenous" selected>Endogenous discount model</option>
+                        <option value="observed">Anchor to observed STRC history</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <details class="panel">
+            <summary style="padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600">Advanced Model Controls</summary>
+            <div class="body">
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>mNAV danger level</label>
+                        <input id="mnavDanger" type="number" value="1.00" step="0.01">
+                    </div>
+                    <div class="formrow">
+                        <label>Reserve warning months</label>
+                        <input id="reserveWarningMonths" type="number" value="12" step="1">
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Forced-sale runway</label>
+                        <input id="forcedSaleMonths" type="number" value="6" step="1">
+                    </div>
+                    <div class="formrow">
+                        <label>Max monthly BTC sale</label>
+                        <input id="maxMonthlyBtcSalePct" type="number" value="0.02" step="0.001">
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Stress volatility multiplier</label>
+                        <input id="stressVolMult" type="number" value="1.85" step="0.05">
+                    </div>
+                    <div class="formrow">
+                        <label>BTC annual drift</label>
+                        <input id="btcDrift" type="number" value="0.00" step="0.01">
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Macro shock weight</label>
+                        <input id="macroWeight" type="number" value="0.35" step="0.01">
+                    </div>
+                    <div class="formrow">
+                        <label>Liquidity beta</label>
+                        <input id="liquidityBeta" type="number" value="0.55" step="0.01">
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Premium compression beta</label>
+                        <input id="premiumBeta" type="number" value="0.85" step="0.01">
+                    </div>
+                    <div class="formrow">
+                        <label>Reflexive sell pressure</label>
+                        <input id="reflexivityN" type="number" min="0" max="2" step="0.01" value="0.65">
+                        <input id="reflexivity" type="range" min="0" max="2" step="0.01" value="0.65">
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="formrow">
+                        <label>Par defense strength</label>
+                        <input id="parDefenseN" type="number" min="0" max="1" step="0.01" value="0.42">
+                        <input id="parDefense" type="range" min="0" max="1" step="0.01" value="0.42">
+                    </div>
+                    <div class="formrow">
+                        <label>Spiral severity marker</label>
+                        <input id="strcSpiral" type="number" value="85" step="0.1">
+                    </div>
+                </div>
+                <p class="note">These are model internals. A normal run should use presets and top-level levers.</p>
+            </div>
+        </details>
+
+        <div class="panel">
+            <h2>Data Sources</h2>
+            <div class="body">
+                <div id="sources"></div>
+                <div class="actions" style="margin-top:8px">
+                    <button id="resetSourcesBtn" class="small">Reset URLs</button>
+                    <button id="openImportBtn" class="small">Import Data</button>
+                </div>
+                <p class="note">Each series expects CSV with Date and Close columns. Custom CSV can be uploaded, pasted, or loaded by URL.</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="header">
+            <div class="title">
+                <h1>Operational Risk Dashboard</h1>
+                <div class="sub" id="dataSummary">No market data loaded.</div>
+            </div>
+            <div class="statusbar">
+                <span class="pill" id="localStatus">localStorage: ready</span>
+                <span class="pill" id="lastRunStatus">no run</span>
+            </div>
+        </div>
+
+        <section class="kpi-grid" id="kpis"></section>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="dashboard">Dashboard</button>
+            <button class="tab" data-tab="regimes">Regimes</button>
+            <button class="tab" data-tab="data">Data</button>
+            <button class="tab" data-tab="import">Import</button>
+            <button class="tab" data-tab="method">Method</button>
+        </div>
+
+        <section id="tab-dashboard">
+            <div class="chart-grid">
+                <div id="chartSpiral" class="chart"></div>
+                <div id="chartRunway" class="chart"></div>
+                <div id="chartPaths" class="chart full"></div>
+                <div id="chartSensitivity" class="chart"></div>
+                <div id="chartDrawdowns" class="chart"></div>
+            </div>
+        </section>
+
+        <section id="tab-regimes" class="hidden">
+            <div class="chart-grid">
+                <div id="chartTransition" class="chart"></div>
+                <div id="chartRegimeShare" class="chart"></div>
+                <div class="panel full">
+                    <h2>Transition Matrix</h2>
+                    <div class="body">
+                        <div id="transitionTable"></div>
+                    </div>
+                </div>
+                <div class="panel full">
+                    <h2>Regime Definitions</h2>
+                    <div class="body">
+                        <table>
+                            <thead><tr><th>Regime</th><th>Operational Definition</th></tr></thead>
+                            <tbody>
+                                <tr><td>Normal Flywheel</td><td>BTC and macro not stressed, STRC near par, mNAV above danger threshold.</td></tr>
+                                <tr><td>Risk-Off Compression</td><td>Negative BTC or equity pressure with VIX/credit stress, but funding still credible.</td></tr>
+                                <tr><td>Funding Stress</td><td>mNAV near danger, STRC below stress price, issuance capacity materially impaired.</td></tr>
+                                <tr><td>Reserve Drawdown</td><td>Issuance impaired enough that preferred obligations consume cash runway.</td></tr>
+                                <tr><td>Reflexive Liquidation</td><td>Reserve runway falls below forced-sale threshold; BTC sales begin.</td></tr>
+                                <tr><td>Spiral / Discontinuity</td><td>STRC severe par break, mNAV stress, forced sales, and risk-off macro coexist.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-data" class="hidden">
+            <div class="chart-grid">
+                <div id="chartPrices" class="chart full"></div>
+                <div id="chartCorr" class="chart"></div>
+                <div id="chartReturns" class="chart"></div>
+                <div class="panel full">
+                    <h2>Loaded Series</h2>
+                    <div class="body" id="seriesTable"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-import" class="hidden">
+            <div class="panel">
+                <h2>Custom Data Import</h2>
+                <div class="body">
+                    <div class="grid3">
+                        <div class="formrow">
+                            <label>Series</label>
+                            <select id="importSeries"></select>
+                        </div>
+                        <div class="formrow">
+                            <label>CSV file</label>
+                            <input id="importFile" type="file" accept=".csv,text/csv">
+                        </div>
+                        <div class="formrow">
+                            <label>Action</label>
+                            <button id="applyImportBtn" class="primary" style="width:100%">Apply Import</button>
+                        </div>
+                    </div>
+                    <div class="formrow">
+                        <label>Paste CSV</label>
+                        <textarea id="importText" placeholder="Date,Close&#10;2026-01-02,99.88"></textarea>
+                    </div>
+                    <p class="note">Imported data is stored in localStorage and overrides URL-loaded data for the selected series until cleared.</p>
+                    <div class="actions">
+                        <button id="clearImportedBtn">Clear Imported Series</button>
+                        <button id="clearAllImportedBtn" class="danger">Clear All Imported Data</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-method" class="hidden">
+            <div class="panel">
+                <h2>Model Notes</h2>
+                <div class="body">
+                    <p class="note">
+                        This simulator uses historical weekly or monthly returns to estimate volatility, correlation, drawdown behavior, and empirical regime transitions. The Monte Carlo engine samples correlated shocks, updates BTC collateral value, estimates mNAV compression, updates STRC price as a function of par-defense credibility and stress, consumes reserves when issuance is impaired, and allows forced BTC sales when reserve runway falls below the configured threshold.
+                    </p>
+                    <table>
+                        <tbody>
+                            <tr><th>mNAV</th><td class="mono">(BTC holdings * BTC price - debt - preferred notional + cash) / common market cap proxy</td></tr>
+                            <tr><th>Preferred obligation</th><td class="mono">preferred notional * dividend rate + debt * debt interest</td></tr>
+                            <tr><th>Reserve runway</th><td class="mono">cash reserve / monthly obligation</td></tr>
+                            <tr><th>Confidence</th><td class="mono">weighted score from mNAV, reserve runway, macro liquidity, BTC pressure, and recent drawdown</td></tr>
+                            <tr><th>Issuance capacity</th><td class="mono">confidence * sigmoid(mNAV - danger + buffer)</td></tr>
+                            <tr><th>STRC price</th><td class="mono">emergent price from required yield spread, confidence, par defense, and observed volatility</td></tr>
+                            <tr><th>Spiral event</th><td class="mono">derived STRC severe break, mNAV stress, forced-sale runway, and risk-off regime coexist</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">
+                        This is not a recommendation engine. It is an assumption engine. The useful output is the set of conditions required to break the structure.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+"use strict";
+
+const VERSION = "2026-05-06";
+const LS_KEY = "strc_stress_lab_state_v3";
+const IMPORT_KEY = "strc_stress_lab_imported_series_v3";
+
+const SERIES_DEFS = {
+    BTC:  { label: "BTC",  url: "https://stooq.com/q/d/l/?s=btc.v&i=d" },
+    MSTR: { label: "MSTR", url: "https://stooq.com/q/d/l/?s=mstr.us&i=d" },
+    STRC: { label: "STRC", url: "https://stooq.com/q/d/l/?s=strc.us&i=d" },
+    QQQ:  { label: "QQQ",  url: "https://stooq.com/q/d/l/?s=qqq.us&i=d" },
+    SPY:  { label: "SPY",  url: "https://stooq.com/q/d/l/?s=spy.us&i=d" },
+    HYG:  { label: "HYG",  url: "https://stooq.com/q/d/l/?s=hyg.us&i=d" },
+    VIX:  { label: "VIX",  url: "https://stooq.com/q/d/l/?s=%5Evix&i=d" }
+};
+
+const PRESETS = {
+    base: {
+        btcPressure: 0.35, macroPressure: 0.25, confidenceFragility: 0.35,
+        stressVolMult: 1.85, macroWeight: 0.35, liquidityBeta: 0.55,
+        premiumBeta: 0.85, parDefense: 0.42, reflexivity: 0.65
+    },
+    bear: {
+        btcPressure: 0.65, macroPressure: 0.30, confidenceFragility: 0.45,
+        stressVolMult: 2.10, macroWeight: 0.35, liquidityBeta: 0.60,
+        premiumBeta: 1.05, parDefense: 0.38, reflexivity: 0.85
+    },
+    macro: {
+        btcPressure: 0.45, macroPressure: 0.65, confidenceFragility: 0.50,
+        stressVolMult: 2.20, macroWeight: 0.55, liquidityBeta: 0.85,
+        premiumBeta: 1.00, parDefense: 0.34, reflexivity: 0.90
+    },
+    funding: {
+        btcPressure: 0.45, macroPressure: 0.45, confidenceFragility: 0.75,
+        stressVolMult: 2.05, macroWeight: 0.45, liquidityBeta: 0.90,
+        premiumBeta: 1.25, parDefense: 0.22, reflexivity: 1.10
+    },
+    crisis: {
+        btcPressure: 0.80, macroPressure: 0.80, confidenceFragility: 0.85,
+        stressVolMult: 2.75, macroWeight: 0.70, liquidityBeta: 1.10,
+        premiumBeta: 1.50, parDefense: 0.16, reflexivity: 1.45
+    }
+};
+
+const REGIMES = [
+    "Normal Flywheel",
+    "Risk-Off Compression",
+    "Funding Stress",
+    "Reserve Drawdown",
+    "Reflexive Liquidation",
+    "Spiral / Discontinuity"
+];
+
+let state = {
+    sources: Object.fromEntries(Object.entries(SERIES_DEFS).map(([k,v]) => [k, v.url])),
+    data: {},
+    imported: {},
+    aligned: [],
+    stats: null,
+    run: null
+};
+
+function $(id) { return document.getElementById(id); }
+
+function log(msg) {
+    const el = $("runlog");
+    const ts = new Date().toISOString().replace("T", " ").slice(0, 19);
+    el.textContent += `[${ts}] ${msg}\n`;
+    el.scrollTop = el.scrollHeight;
+}
+
+function fmtPct(x, d=1) {
+    if (!Number.isFinite(x)) return "n/a";
+    return (100 * x).toFixed(d) + "%";
+}
+function fmtMoney(x) {
+    if (!Number.isFinite(x)) return "n/a";
+    const abs = Math.abs(x);
+    if (abs >= 1e12) return "$" + (x / 1e12).toFixed(2) + "T";
+    if (abs >= 1e9) return "$" + (x / 1e9).toFixed(2) + "B";
+    if (abs >= 1e6) return "$" + (x / 1e6).toFixed(1) + "M";
+    return "$" + x.toFixed(0);
+}
+function fmtNum(x, d=2) {
+    if (!Number.isFinite(x)) return "n/a";
+    return x.toFixed(d);
+}
+
+function numberInput(id) {
+    const x = Number($(id).value);
+    return Number.isFinite(x) ? x : 0;
+}
+
+function getConfig() {
+    return {
+        paths: Math.max(10, Math.floor(numberInput("paths"))),
+        months: Math.max(1, Math.floor(numberInput("months"))),
+        preset: $("preset").value,
+        stepMode: $("stepMode").value,
+        seed: Math.floor(numberInput("seed")),
+        btcVolMode: $("btcVolMode").value,
+        strcModelMode: $("strcModelMode").value,
+        btcPressure: numberInput("btcPressureN"),
+        macroPressure: numberInput("macroPressureN"),
+        confidenceFragility: numberInput("confidenceFragilityN"),
+        btcHoldings: numberInput("btcHoldings"),
+        btcStart: numberInput("btcStart"),
+        debt: numberInput("debt"),
+        commonMarketCap: numberInput("commonMarketCap"),
+        prefNotional: numberInput("prefNotional"),
+        cashReserve: numberInput("cashReserve"),
+        divRate: numberInput("divRate"),
+        debtInterest: numberInput("debtInterest"),
+        mnavDanger: numberInput("mnavDanger"),
+        strcSpiral: numberInput("strcSpiral"),
+        reserveWarningMonths: numberInput("reserveWarningMonths"),
+        forcedSaleMonths: numberInput("forcedSaleMonths"),
+        maxMonthlyBtcSalePct: numberInput("maxMonthlyBtcSalePct"),
+        parDefense: numberInput("parDefenseN"),
+        reflexivity: numberInput("reflexivityN"),
+        btcVolOverride: numberInput("btcVolOverride"),
+        stressVolMult: numberInput("stressVolMult"),
+        btcDrift: numberInput("btcDrift"),
+        macroWeight: numberInput("macroWeight"),
+        liquidityBeta: numberInput("liquidityBeta"),
+        premiumBeta: numberInput("premiumBeta")
+    };
+}
+
+function bindRange(rangeId, inputId) {
+    const r = $(rangeId);
+    const n = $(inputId);
+    r.addEventListener("input", () => n.value = r.value);
+    n.addEventListener("input", () => r.value = n.value);
+}
+
+function initSources() {
+    const wrap = $("sources");
+    wrap.innerHTML = "";
+    for (const [key, def] of Object.entries(SERIES_DEFS)) {
+        const row = document.createElement("div");
+        row.className = "source-row";
+        row.innerHTML = `
+            <input value="${key}" disabled>
+            <input id="source_${key}" value="${state.sources[key] || def.url}">
+            <button class="small" data-load-one="${key}">Load</button>
+        `;
+        wrap.appendChild(row);
+    }
+    wrap.querySelectorAll("[data-load-one]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            saveSourceInputs();
+            await loadSeries(btn.dataset.loadOne);
+            rebuildAligned();
+            renderAll();
+        });
+    });
+
+    const importSeries = $("importSeries");
+    importSeries.innerHTML = "";
+    for (const key of Object.keys(SERIES_DEFS)) {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = key;
+        importSeries.appendChild(opt);
+    }
+}
+
+function saveSourceInputs() {
+    for (const key of Object.keys(SERIES_DEFS)) {
+        const el = $(`source_${key}`);
+        if (el) state.sources[key] = el.value.trim();
+    }
+}
+
+async function fetchText(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    return await res.text();
+}
+
+function parseCsv(text) {
+    const parsed = Papa.parse(text.trim(), { header: true, dynamicTyping: true, skipEmptyLines: true });
+    if (parsed.errors && parsed.errors.length) {
+        const fatal = parsed.errors.find(e => e.type !== "Delimiter");
+        if (fatal) throw new Error(fatal.message);
+    }
+    const rows = [];
+    for (const r of parsed.data) {
+        const dateRaw = r.Date || r.date || r.DATE || r.Time || r.time;
+        const closeRaw = r.Close ?? r.close ?? r.CLOSE ?? r.AdjClose ?? r["Adj Close"] ?? r.Price ?? r.price;
+        if (!dateRaw || closeRaw == null) continue;
+        const date = String(dateRaw).slice(0, 10);
+        const close = Number(closeRaw);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(close) || close <= 0) continue;
+        rows.push({ date, close });
+    }
+    rows.sort((a,b) => a.date.localeCompare(b.date));
+    const dedup = [];
+    for (const row of rows) {
+        if (dedup.length && dedup[dedup.length - 1].date === row.date) dedup[dedup.length - 1] = row;
+        else dedup.push(row);
+    }
+    return dedup;
+}
+
+async function loadSeries(key) {
+    if (state.imported[key] && state.imported[key].length) {
+        state.data[key] = state.imported[key];
+        log(`${key}: using imported data (${state.data[key].length} rows)`);
+        return;
+    }
+    const url = state.sources[key];
+    log(`${key}: loading ${url}`);
+    try {
+        const text = await fetchText(url);
+        const rows = parseCsv(text);
+        if (rows.length < 2) throw new Error("not enough rows");
+        state.data[key] = rows;
+        log(`${key}: loaded ${rows.length} rows, ${rows[0].date} to ${rows[rows.length - 1].date}`);
+    } catch (e) {
+        log(`${key}: failed: ${e.message}`);
+        if (!state.data[key]) state.data[key] = [];
+    }
+}
+
+async function loadAllMarketData() {
+    saveSourceInputs();
+    const keys = Object.keys(SERIES_DEFS);
+    for (const key of keys) await loadSeries(key);
+    rebuildAligned();
+    renderAll();
+    saveState();
+}
+
+function periodKey(date, mode) {
+    const d = new Date(date + "T00:00:00Z");
+    const y = d.getUTCFullYear();
+    if (mode === "monthly") return `${y}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    const day = Math.floor(d.getTime() / 86400000);
+    const week = Math.floor((day + 4) / 7);
+    return `${y}-W${String(week).padStart(2, "0")}`;
+}
+
+function resample(rows, mode) {
+    const map = new Map();
+    for (const r of rows) map.set(periodKey(r.date, mode), r);
+    return Array.from(map.entries()).map(([period, row]) => ({ period, date: row.date, close: row.close }));
+}
+
+function rebuildAligned() {
+    const cfg = getConfig();
+    const sampled = {};
+    const periods = new Set();
+    for (const key of Object.keys(SERIES_DEFS)) {
+        sampled[key] = resample(state.data[key] || [], cfg.stepMode);
+        for (const r of sampled[key]) periods.add(r.period);
+    }
+    const maps = Object.fromEntries(Object.keys(SERIES_DEFS).map(k => [k, new Map(sampled[k].map(r => [r.period, r]))]));
+    const aligned = [];
+    for (const period of Array.from(periods).sort()) {
+        const row = { period };
+        let have = 0;
+        for (const key of Object.keys(SERIES_DEFS)) {
+            const r = maps[key].get(period);
+            if (r) {
+                row[key] = r.close;
+                row.date = r.date;
+                have++;
+            }
+        }
+        if (have >= 4) aligned.push(row);
+    }
+    aligned.sort((a,b) => a.period.localeCompare(b.period));
+
+    const returns = [];
+    for (let i = 1; i < aligned.length; i++) {
+        const prev = aligned[i - 1], cur = aligned[i];
+        const row = { period: cur.period, date: cur.date };
+        let count = 0;
+        for (const key of Object.keys(SERIES_DEFS)) {
+            if (prev[key] && cur[key]) {
+                row[key] = Math.log(cur[key] / prev[key]);
+                count++;
+            }
+        }
+        if (count >= 4) returns.push(row);
+    }
+    state.aligned = aligned;
+    state.returns = returns;
+    state.stats = computeStats(returns, cfg);
+    updateDataSummary();
+}
+
+function mean(xs) {
+    const a = xs.filter(Number.isFinite);
+    return a.length ? a.reduce((s,x)=>s+x,0) / a.length : 0;
+}
+function variance(xs) {
+    const m = mean(xs);
+    const a = xs.filter(Number.isFinite);
+    return a.length > 1 ? a.reduce((s,x)=>s+(x-m)*(x-m),0) / (a.length - 1) : 0;
+}
+function stdev(xs) { return Math.sqrt(variance(xs)); }
+function cov(xs, ys) {
+    const pairs = xs.map((x,i) => [x, ys[i]]).filter(p => Number.isFinite(p[0]) && Number.isFinite(p[1]));
+    if (pairs.length < 2) return 0;
+    const mx = mean(pairs.map(p=>p[0]));
+    const my = mean(pairs.map(p=>p[1]));
+    return pairs.reduce((s,p)=>s+(p[0]-mx)*(p[1]-my),0) / (pairs.length - 1);
+}
+function corr(xs, ys) {
+    const c = cov(xs, ys);
+    const sx = stdev(xs), sy = stdev(ys);
+    return sx > 0 && sy > 0 ? c / (sx * sy) : 0;
+}
+function quantile(xs, q) {
+    const a = xs.filter(Number.isFinite).sort((x,y)=>x-y);
+    if (!a.length) return NaN;
+    const pos = (a.length - 1) * q;
+    const lo = Math.floor(pos), hi = Math.ceil(pos);
+    if (lo === hi) return a[lo];
+    return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+}
+
+function classifyHistoricalRegime(r, cfg) {
+    const btc = r.BTC ?? 0, qqq = r.QQQ ?? r.SPY ?? 0, hyg = r.HYG ?? 0, vix = r.VIX ?? 0;
+    const vixShock = vix > 0.10 ? 1 : 0;
+    const macroBad = qqq < -0.04 || hyg < -0.02 || vixShock;
+    const btcBad = btc < -0.12;
+    const btcSevere = btc < -0.25;
+    if (btcSevere && macroBad) return 4;
+    if (btcBad && macroBad) return 2;
+    if (macroBad || btc < -0.07) return 1;
+    return 0;
+}
+
+function computeTransitionMatrix(regimes) {
+    const n = REGIMES.length;
+    const counts = Array.from({length:n}, () => Array(n).fill(0.5));
+    for (let i = 1; i < regimes.length; i++) counts[regimes[i - 1]][regimes[i]] += 1;
+    return counts.map(row => {
+        const s = row.reduce((a,b)=>a+b,0);
+        return row.map(x => x / s);
+    });
+}
+
+function computeStats(returns, cfg) {
+    const keys = ["BTC", "MSTR", "STRC", "QQQ", "SPY", "HYG", "VIX"];
+    const periodsPerYear = cfg.stepMode === "weekly" ? 52 : 12;
+    const retMap = Object.fromEntries(keys.map(k => [k, returns.map(r => r[k]).filter(Number.isFinite)]));
+    const vols = {};
+    const drifts = {};
+    for (const k of keys) {
+        vols[k] = stdev(retMap[k]) * Math.sqrt(periodsPerYear);
+        drifts[k] = mean(retMap[k]) * periodsPerYear;
+    }
+    const corrMatrix = {};
+    for (const a of keys) {
+        corrMatrix[a] = {};
+        for (const b of keys) corrMatrix[a][b] = corr(retMap[a], retMap[b]);
+    }
+    const histRegimes = returns.map(r => classifyHistoricalRegime(r, cfg));
+    const transitions = computeTransitionMatrix(histRegimes);
+    const btcDraws = rollingDrawdowns(returns.map(r => r.BTC).filter(Number.isFinite));
+    return { keys, periodsPerYear, vols, drifts, corrMatrix, histRegimes, transitions, btcDraws };
+}
+
+function rollingDrawdowns(logReturns) {
+    const out = [];
+    let price = 1, peak = 1;
+    for (const r of logReturns) {
+        price *= Math.exp(r);
+        peak = Math.max(peak, price);
+        out.push(price / peak - 1);
+    }
+    return out;
+}
+
+function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function() {
+        a += 0x6D2B79F5;
+        let t = a;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+function randn(rng) {
+    let u = 0, v = 0;
+    while (u === 0) u = rng();
+    while (v === 0) v = rng();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function cholesky3(c) {
+    const a00 = Math.max(1e-9, c[0][0]);
+    const l00 = Math.sqrt(a00);
+    const l10 = c[1][0] / l00;
+    const l20 = c[2][0] / l00;
+    const l11 = Math.sqrt(Math.max(1e-9, c[1][1] - l10*l10));
+    const l21 = (c[2][1] - l20*l10) / l11;
+    const l22 = Math.sqrt(Math.max(1e-9, c[2][2] - l20*l20 - l21*l21));
+    return [[l00,0,0],[l10,l11,0],[l20,l21,l22]];
+}
+
+function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+
+function sampleNextRegime(rng, current, matrix, stressBoost) {
+    const row = matrix[Math.min(current, matrix.length - 1)].slice();
+    if (stressBoost > 0) {
+        for (let i = 1; i < row.length; i++) row[i] *= (1 + stressBoost * i / 2);
+        row[0] /= (1 + stressBoost);
+    }
+    const sum = row.reduce((a,b)=>a+b,0);
+    let u = rng() * sum;
+    for (let i = 0; i < row.length; i++) {
+        u -= row[i];
+        if (u <= 0) return i;
+    }
+    return row.length - 1;
+}
+
+function simulate() {
+    const cfg = getConfig();
+    if (!state.stats) rebuildAligned();
+    const stats = state.stats || computeStats([], cfg);
+    const rng = mulberry32(cfg.seed || 1);
+    const steps = cfg.stepMode === "weekly" ? Math.ceil(cfg.months * 52 / 12) : cfg.months;
+    const periodsPerYear = cfg.stepMode === "weekly" ? 52 : 12;
+    const dt = 1 / periodsPerYear;
+    const annualObligation = cfg.prefNotional * cfg.divRate + cfg.debt * cfg.debtInterest;
+    const stepObligation = annualObligation / periodsPerYear;
+
+    const btcVol = cfg.btcVolMode === "manual" ? cfg.btcVolOverride : (stats.vols.BTC || 0.65);
+    const qqqVol = stats.vols.QQQ || stats.vols.SPY || 0.22;
+    const hygVol = stats.vols.HYG || 0.09;
+    const rhoBtcQ = clamp(stats.corrMatrix?.BTC?.QQQ ?? 0.35, -0.95, 0.95);
+    const rhoBtcH = clamp(stats.corrMatrix?.BTC?.HYG ?? 0.20, -0.95, 0.95);
+    const rhoQH = clamp(stats.corrMatrix?.QQQ?.HYG ?? 0.55, -0.95, 0.95);
+
+    const corr3 = [[1, rhoBtcQ, rhoBtcH], [rhoBtcQ, 1, rhoQH], [rhoBtcH, rhoQH, 1]];
+    const L = cholesky3(corr3);
+    const matrix = stats.transitions || computeTransitionMatrix([0,0,1,0,2,1,0]);
+
+    const results = {
+        cfg, statsSnapshot: stats,
+        paths: [],
+        eventCounts: {
+            strc95: 0, strc90: 0, strc80: 0,
+            mnavBelow1: 0, issuanceClosed: 0, reservesWarning: 0,
+            forcedSales: 0, spiral: 0
+        },
+        eventTimes: { spiral: [], forcedSales: [], reservesWarning: [] },
+        terminal: [],
+        regimeCounts: Array(REGIMES.length).fill(0),
+        sensitivity: []
+    };
+
+    const sampleKeep = Math.min(150, cfg.paths);
+
+    for (let p = 0; p < cfg.paths; p++) {
+        let btc = cfg.btcStart;
+        let cash = cfg.cashReserve;
+        let holdings = cfg.btcHoldings;
+        let commonCap = cfg.commonMarketCap;
+        let strc = 100;
+        let mnav = calcMnav(holdings, btc, cfg.debt, cfg.prefNotional, cash, commonCap);
+        let regime = mnav < cfg.mnavDanger ? 1 : 0;
+        let minStrc = strc;
+        let minMnav = mnav;
+        let minRunway = cash / stepObligation / periodsPerYear * 12;
+        let soldBtc = 0;
+
+        const flags = { strc95:false, strc90:false, strc80:false, mnavBelow1:false, issuanceClosed:false, reservesWarning:false, forcedSales:false, spiral:false };
+        const path = { btc: [], strc: [], mnav: [], cash: [], runway: [], regime: [], soldBtc: [] };
+
+        for (let t = 0; t < steps; t++) {
+            const stressBoost = Math.max(0, (cfg.mnavDanger - mnav) * 0.9 + (95 - strc) / 25);
+            regime = sampleNextRegime(rng, regime, matrix, stressBoost);
+            const volMult = regime >= 2 ? cfg.stressVolMult : regime === 1 ? (1 + (cfg.stressVolMult - 1) * 0.45) : 1;
+            const z0 = randn(rng), z1 = randn(rng), z2 = randn(rng);
+            const e0 = L[0][0]*z0;
+            const e1 = L[1][0]*z0 + L[1][1]*z1;
+            const e2 = L[2][0]*z0 + L[2][1]*z1 + L[2][2]*z2;
+
+            const macroShock = cfg.macroWeight * (-e1) + cfg.liquidityBeta * (-e2);
+            const regimeDriftPenalty = [0, -0.03, -0.10, -0.14, -0.20, -0.32][regime] * dt;
+            let btcReturn = (cfg.btcDrift - 0.5 * btcVol * btcVol) * dt + btcVol * Math.sqrt(dt) * volMult * e0 + regimeDriftPenalty;
+            btcReturn -= Math.max(0, soldBtc / Math.max(1, holdings)) * cfg.reflexivity * 4;
+            btc = Math.max(1000, btc * Math.exp(btcReturn));
+
+            const qReturn = (stats.drifts.QQQ || 0.06) * dt + qqqVol * Math.sqrt(dt) * volMult * e1;
+            const capBeta = cfg.premiumBeta * (0.65 + Math.max(0, cfg.mnavDanger - mnav));
+            commonCap = Math.max(1e9, commonCap * Math.exp(qReturn + capBeta * btcReturn - Math.max(0, macroShock) * 0.04));
+
+            mnav = calcMnav(holdings, btc, cfg.debt, cfg.prefNotional, cash, commonCap);
+            const recentDrawdownProxy = Math.max(0, -btcReturn) * 6 + Math.max(0, -qReturn) * 3;
+            const reserveRunwayPre = stepObligation > 0 ? cash / stepObligation / periodsPerYear * 12 : 999;
+            const runwayScore = sigmoid((reserveRunwayPre - cfg.reserveWarningMonths) / 6);
+            const mnavScore = sigmoid((mnav - cfg.mnavDanger) * 4.5);
+            const macroScore = sigmoid(-macroShock * 1.8 - cfg.macroPressure * 1.4);
+            const btcScore = sigmoid(-recentDrawdownProxy - cfg.btcPressure * 1.2);
+            const confidence = clamp(
+                0.42 * mnavScore +
+                0.24 * runwayScore +
+                0.18 * macroScore +
+                0.16 * btcScore -
+                cfg.confidenceFragility * 0.22,
+                0, 1
+            );
+            const issuanceCapacity = clamp(confidence * sigmoid((mnav - cfg.mnavDanger + 0.20) * 3.0), 0, 1);
+
+            const requiredYieldSpread =
+                cfg.confidenceFragility * 4.5 +
+                Math.max(0, cfg.mnavDanger - mnav) * 18 +
+                Math.max(0, cfg.reserveWarningMonths - reserveRunwayPre) * 0.45 +
+                Math.max(0, macroShock) * 5.5 +
+                recentDrawdownProxy * 1.8 +
+                Math.max(0, regime - 1) * 1.5;
+
+            const impliedDiscount = clamp(requiredYieldSpread / 1.9, 0, 65);
+            const impliedStrc = clamp(100 - impliedDiscount, 25, 105);
+            const observedAnchor = cfg.strcModelMode === "observed" && Number.isFinite(stats.vols.STRC) ? 0.25 : 0.0;
+            const parPull = cfg.parDefense * confidence * (100 - strc) * 0.22;
+            const strcNoise = (stats.vols.STRC || 0.12) * Math.sqrt(dt) * randn(rng) * (regime >= 2 ? 1.8 : 1) * 100;
+            strc = clamp(
+                strc * (0.72 - observedAnchor) +
+                impliedStrc * (0.28 + observedAnchor) +
+                parPull +
+                strcNoise,
+                20, 115
+            );
+
+            if (issuanceCapacity < 0.20) {
+                cash -= stepObligation;
+            } else {
+                const covered = stepObligation * Math.min(1, issuanceCapacity * 1.6);
+                cash -= Math.max(0, stepObligation - covered);
+            }
+            cash = Math.max(0, cash);
+
+            const runwayMonths = stepObligation > 0 ? cash / stepObligation / periodsPerYear * 12 : 999;
+            if (runwayMonths < cfg.forcedSaleMonths) {
+                const needed = (cfg.forcedSaleMonths * stepObligation * periodsPerYear / 12) - cash;
+                const saleValue = Math.min(Math.max(0, needed), holdings * btc * cfg.maxMonthlyBtcSalePct);
+                const saleBtc = saleValue / btc;
+                holdings = Math.max(0, holdings - saleBtc);
+                cash += saleValue;
+                soldBtc += saleBtc;
+            }
+
+            mnav = calcMnav(holdings, btc, cfg.debt, cfg.prefNotional, cash, commonCap);
+            minStrc = Math.min(minStrc, strc);
+            minMnav = Math.min(minMnav, mnav);
+            minRunway = Math.min(minRunway, runwayMonths);
+
+            if (strc < 95) flags.strc95 = true;
+            if (strc < 90) flags.strc90 = true;
+            if (strc < 80) flags.strc80 = true;
+            if (mnav < cfg.mnavDanger) flags.mnavBelow1 = true;
+            if (issuanceCapacity < 0.20) flags.issuanceClosed = true;
+            if (runwayMonths < cfg.reserveWarningMonths) {
+                if (!flags.reservesWarning) results.eventTimes.reservesWarning.push(t + 1);
+                flags.reservesWarning = true;
+            }
+            if (soldBtc > 0) {
+                if (!flags.forcedSales) results.eventTimes.forcedSales.push(t + 1);
+                flags.forcedSales = true;
+            }
+            if (strc < cfg.strcSpiral && mnav < cfg.mnavDanger && runwayMonths < cfg.forcedSaleMonths && regime >= 1) {
+                if (!flags.spiral) results.eventTimes.spiral.push(t + 1);
+                flags.spiral = true;
+                regime = Math.max(regime, 5);
+            }
+
+            results.regimeCounts[regime] += 1;
+            if (p < sampleKeep) {
+                path.btc.push(btc);
+                path.strc.push(strc);
+                path.mnav.push(mnav);
+                path.cash.push(cash);
+                path.runway.push(runwayMonths);
+                path.regime.push(regime);
+                path.soldBtc.push(soldBtc);
+            }
+        }
+
+        for (const k of Object.keys(flags)) if (flags[k]) results.eventCounts[k] += 1;
+        results.terminal.push({ btc, strc, mnav, cash, holdings, minStrc, minMnav, minRunway, soldBtc, spiral: flags.spiral });
+        if (p < sampleKeep) results.paths.push(path);
+    }
+
+    state.run = finalizeResults(results);
+    $("lastRunStatus").textContent = `last run: ${new Date().toLocaleTimeString()}`;
+    log(`simulation complete: ${cfg.paths} paths, ${steps} ${cfg.stepMode} steps`);
+    renderAll();
+    saveState();
+}
+
+function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+
+function calcMnav(holdings, btc, debt, pref, cash, commonCap) {
+    return (holdings * btc - debt - pref + cash) / Math.max(1, commonCap);
+}
+
+function finalizeResults(results) {
+    const n = results.cfg.paths;
+    results.probs = Object.fromEntries(Object.entries(results.eventCounts).map(([k,v]) => [k, v / n]));
+    results.summary = {
+        terminalBtcP05: quantile(results.terminal.map(x=>x.btc), 0.05),
+        terminalBtcP50: quantile(results.terminal.map(x=>x.btc), 0.50),
+        terminalBtcP95: quantile(results.terminal.map(x=>x.btc), 0.95),
+        minStrcP05: quantile(results.terminal.map(x=>x.minStrc), 0.05),
+        minStrcP50: quantile(results.terminal.map(x=>x.minStrc), 0.50),
+        minMnavP05: quantile(results.terminal.map(x=>x.minMnav), 0.05),
+        minMnavP50: quantile(results.terminal.map(x=>x.minMnav), 0.50),
+        runwayP05: quantile(results.terminal.map(x=>x.minRunway), 0.05),
+        soldBtcP95: quantile(results.terminal.map(x=>x.soldBtc), 0.95),
+        spiralMonthP50: quantile(results.eventTimes.spiral, 0.50),
+        forcedMonthP50: quantile(results.eventTimes.forcedSales, 0.50)
+    };
+    return results;
+}
+
+function runSensitivity() {
+    const base = getConfig();
+    const parVals = [0.2, 0.4, 0.6, 0.8];
+    const volVals = [1.0, 1.4, 1.8, 2.2];
+    const originalPaths = $("paths").value;
+    const originalPar = $("parDefenseN").value;
+    const originalStressVol = $("stressVolMult").value;
+    $("paths").value = Math.min(2500, Math.max(500, Math.floor(base.paths / 4)));
+    const matrix = [];
+    for (const pv of parVals) {
+        $("parDefense").value = $("parDefenseN").value = pv;
+        const row = [];
+        for (const vv of volVals) {
+            $("stressVolMult").value = vv;
+            const prevRender = renderAll;
+            simulateNoRender();
+            row.push(state.run.probs.spiral);
+        }
+        matrix.push(row);
+    }
+    $("paths").value = originalPaths;
+    $("parDefense").value = $("parDefenseN").value = originalPar;
+    $("stressVolMult").value = originalStressVol;
+    simulate();
+    state.run.sensitivity = { parVals, volVals, matrix };
+}
+
+function simulateNoRender() {
+    const oldRun = state.run;
+    const oldLog = $("runlog").textContent;
+    const oldRender = window.__suppressRender;
+    window.__suppressRender = true;
+    simulate();
+    window.__suppressRender = oldRender;
+    $("runlog").textContent = oldLog;
+    return state.run;
+}
+
+function kpi(label, value, hint, cls="") {
+    return `<div class="kpi"><div class="label">${label}</div><div class="value ${cls}">${value}</div><div class="hint">${hint || ""}</div></div>`;
+}
+
+function renderKpis() {
+    const wrap = $("kpis");
+    const cfg = getConfig();
+    const annualObligation = cfg.prefNotional * cfg.divRate + cfg.debt * cfg.debtInterest;
+    const runway = annualObligation > 0 ? cfg.cashReserve / annualObligation * 12 : Infinity;
+    if (!state.run) {
+        wrap.innerHTML = [
+            kpi("Preferred obligation", fmtMoney(annualObligation), "annual cash burden"),
+            kpi("Reserve runway", fmtNum(runway,1) + " mo", "before issuance or BTC sales"),
+            kpi("Starting mNAV", fmtNum(calcMnav(cfg.btcHoldings, cfg.btcStart, cfg.debt, cfg.prefNotional, cfg.cashReserve, cfg.commonMarketCap),2), "configured starting state"),
+            kpi("BTC vol", fmtPct((state.stats?.vols?.BTC || 0),1), "historical annualized"),
+            kpi("Data rows", String(state.aligned?.length || 0), "aligned periods"),
+            kpi("Spiral probability", "n/a", "run simulation")
+        ].join("");
+        return;
+    }
+    const p = state.run.probs;
+    const s = state.run.summary;
+    wrap.innerHTML = [
+        kpi("Spiral probability", fmtPct(p.spiral,1), "configured trigger", p.spiral > 0.10 ? "bad" : p.spiral > 0.03 ? "warn" : "good"),
+        kpi("Forced BTC sales", fmtPct(p.forcedSales,1), "any simulated path"),
+        kpi("STRC < 90", fmtPct(p.strc90,1), "at any point"),
+        kpi("mNAV stress", fmtPct(p.mnavBelow1,1), "below danger threshold"),
+        kpi("5% min STRC", fmtNum(s.minStrcP05,2), "path-level drawdown"),
+        kpi("5% min runway", fmtNum(s.runwayP05,1) + " mo", "path-level minimum")
+    ].join("");
+}
+
+function plotLayout(title) {
+    return {
+        title: { text: title, font: { size: 13, color: "#d8e1ec" } },
+        paper_bgcolor: "#111821",
+        plot_bgcolor: "#0b1118",
+        font: { color: "#d8e1ec", family: "Inter, sans-serif", size: 11 },
+        margin: { l: 50, r: 18, t: 42, b: 42 },
+        xaxis: { gridcolor: "#233041", zerolinecolor: "#34465c" },
+        yaxis: { gridcolor: "#233041", zerolinecolor: "#34465c" },
+        legend: { orientation: "h", y: -0.2 }
+    };
+}
+
+function renderCharts() {
+    if (window.__suppressRender) return;
+    renderKpis();
+    renderDataCharts();
+    if (!state.run) {
+        emptyChart("chartSpiral", "Run simulation to populate");
+        emptyChart("chartRunway", "Run simulation to populate");
+        emptyChart("chartPaths", "Run simulation to populate");
+        emptyChart("chartSensitivity", "Run simulation to populate");
+        emptyChart("chartDrawdowns", "Run simulation to populate");
+        renderRegimeCharts();
+        return;
+    }
+    const run = state.run;
+    const cfg = run.cfg;
+    const steps = run.paths[0]?.btc.length || 0;
+    const x = Array.from({length: steps}, (_,i)=>i+1);
+
+    Plotly.react("chartSpiral", [{
+        type: "bar",
+        x: ["STRC<95", "STRC<90", "STRC<80", "mNAV", "Issuance", "Reserve", "Forced", "Spiral"],
+        y: [run.probs.strc95, run.probs.strc90, run.probs.strc80, run.probs.mnavBelow1, run.probs.issuanceClosed, run.probs.reservesWarning, run.probs.forcedSales, run.probs.spiral].map(v=>v*100)
+    }], {...plotLayout("Event Probability"), yaxis: { title: "% of paths", gridcolor: "#233041" }}, {displayModeBar:false, responsive:true});
+
+    const runwayPaths = run.paths.map(p => p.runway);
+    const runwayP05 = x.map((_,i)=>quantile(runwayPaths.map(p=>p[i]),0.05));
+    const runwayP50 = x.map((_,i)=>quantile(runwayPaths.map(p=>p[i]),0.50));
+    const runwayP95 = x.map((_,i)=>quantile(runwayPaths.map(p=>p[i]),0.95));
+    Plotly.react("chartRunway", [
+        {type:"scatter", mode:"lines", name:"p05", x, y:runwayP05},
+        {type:"scatter", mode:"lines", name:"p50", x, y:runwayP50},
+        {type:"scatter", mode:"lines", name:"p95", x, y:runwayP95}
+    ], {...plotLayout("Reserve Runway Distribution"), yaxis:{title:"months", gridcolor:"#233041"}}, {displayModeBar:false, responsive:true});
+
+    const btcPaths = run.paths.slice(0, 40).map((p, i) => ({type:"scatter", mode:"lines", x, y:p.btc, name:`p${i}`, opacity:0.18, showlegend:false}));
+    const btcP05 = x.map((_,i)=>quantile(run.paths.map(p=>p.btc[i]),0.05));
+    const btcP50 = x.map((_,i)=>quantile(run.paths.map(p=>p.btc[i]),0.50));
+    const btcP95 = x.map((_,i)=>quantile(run.paths.map(p=>p.btc[i]),0.95));
+    btcPaths.push({type:"scatter", mode:"lines", x, y:btcP05, name:"BTC p05", line:{width:3}});
+    btcPaths.push({type:"scatter", mode:"lines", x, y:btcP50, name:"BTC p50", line:{width:3}});
+    btcPaths.push({type:"scatter", mode:"lines", x, y:btcP95, name:"BTC p95", line:{width:3}});
+    Plotly.react("chartPaths", btcPaths, {...plotLayout("Simulated BTC Paths")}, {displayModeBar:false, responsive:true});
+
+    const terminals = run.terminal;
+    Plotly.react("chartDrawdowns", [{
+        type:"scatter",
+        mode:"markers",
+        x: terminals.map(t=>t.minMnav),
+        y: terminals.map(t=>t.minStrc),
+        text: terminals.map(t=>`sold BTC: ${fmtNum(t.soldBtc,0)}`),
+        marker: { size: 5, opacity: 0.55 }
+    }], {...plotLayout("Path Stress Scatter"), xaxis:{title:"minimum mNAV", gridcolor:"#233041"}, yaxis:{title:"minimum STRC", gridcolor:"#233041"}}, {displayModeBar:false, responsive:true});
+
+    if (run.sensitivity?.matrix) {
+        Plotly.react("chartSensitivity", [{
+            type:"heatmap",
+            x: run.sensitivity.volVals,
+            y: run.sensitivity.parVals,
+            z: run.sensitivity.matrix.map(row=>row.map(v=>v*100)),
+            colorbar:{title:"%"}
+        }], {...plotLayout("Spiral Sensitivity"), xaxis:{title:"stress vol multiplier"}, yaxis:{title:"par defense"}}, {displayModeBar:false, responsive:true});
+    } else {
+        emptyChart("chartSensitivity", "Sensitivity not run. Exported model supports manual reruns by changing assumptions.");
+    }
+    renderRegimeCharts();
+}
+
+function emptyChart(id, text) {
+    Plotly.react(id, [{type:"scatter", x:[0], y:[0], mode:"text", text:[text], textposition:"middle center"}], plotLayout(""), {displayModeBar:false, responsive:true});
+}
+
+function renderDataCharts() {
+    if (!state.aligned?.length) {
+        emptyChart("chartPrices", "No data loaded");
+        emptyChart("chartCorr", "No data loaded");
+        emptyChart("chartReturns", "No data loaded");
+        renderSeriesTable();
+        return;
+    }
+    const keys = Object.keys(SERIES_DEFS).filter(k => state.aligned.some(r => Number.isFinite(r[k])));
+    const traces = keys.map(k => {
+        const first = state.aligned.find(r => Number.isFinite(r[k]))?.[k];
+        return {
+            type:"scatter", mode:"lines", name:k,
+            x: state.aligned.map(r=>r.date || r.period),
+            y: state.aligned.map(r=>Number.isFinite(r[k]) && first ? r[k] / first * 100 : null)
+        };
+    });
+    Plotly.react("chartPrices", traces, {...plotLayout("Indexed Market Data"), yaxis:{title:"first value = 100", gridcolor:"#233041"}}, {displayModeBar:false, responsive:true});
+
+    if (state.stats?.corrMatrix) {
+        const z = keys.map(a => keys.map(b => state.stats.corrMatrix[a][b]));
+        Plotly.react("chartCorr", [{type:"heatmap", x:keys, y:keys, z, zmin:-1, zmax:1, colorbar:{title:"rho"}}], plotLayout("Return Correlation"), {displayModeBar:false, responsive:true});
+    }
+
+    const retTraces = ["BTC", "MSTR", "STRC", "QQQ", "HYG"].filter(k=>keys.includes(k)).map(k => ({
+        type:"histogram", name:k, x: state.returns.map(r=>r[k]).filter(Number.isFinite).map(x=>x*100), opacity:0.55
+    }));
+    Plotly.react("chartReturns", retTraces, {...plotLayout("Return Distribution"), barmode:"overlay", xaxis:{title:"log return %", gridcolor:"#233041"}}, {displayModeBar:false, responsive:true});
+    renderSeriesTable();
+}
+
+function renderRegimeCharts() {
+    if (state.stats?.transitions) {
+        Plotly.react("chartTransition", [{
+            type:"heatmap",
+            x: REGIMES,
+            y: REGIMES,
+            z: state.stats.transitions.map(row=>row.map(v=>v*100)),
+            colorbar:{title:"%"}
+        }], {...plotLayout("Historical Transition Matrix"), xaxis:{tickangle:35}, yaxis:{autorange:"reversed"}}, {displayModeBar:false, responsive:true});
+        renderTransitionTable();
+    } else {
+        emptyChart("chartTransition", "No transition data");
+    }
+
+    const counts = state.run ? state.run.regimeCounts : (state.stats?.histRegimes || []).reduce((a,r)=>{a[r]++; return a;}, Array(REGIMES.length).fill(0));
+    const sum = counts.reduce((a,b)=>a+b,0) || 1;
+    Plotly.react("chartRegimeShare", [{
+        type:"bar", x:REGIMES, y:counts.map(c=>c/sum*100)
+    }], {...plotLayout(state.run ? "Simulated Regime Share" : "Historical Regime Share"), yaxis:{title:"%", gridcolor:"#233041"}, xaxis:{tickangle:35}}, {displayModeBar:false, responsive:true});
+}
+
+function renderTransitionTable() {
+    const matrix = state.stats?.transitions;
+    if (!matrix) {
+        $("transitionTable").innerHTML = "";
+        return;
+    }
+    let html = '<table class="matrix"><thead><tr><th>From \\ To</th>' + REGIMES.map(r=>`<th>${r}</th>`).join("") + '</tr></thead><tbody>';
+    for (let i = 0; i < REGIMES.length; i++) {
+        html += `<tr><td>${REGIMES[i]}</td>` + matrix[i].map(v=>`<td>${fmtPct(v,1)}</td>`).join("") + '</tr>';
+    }
+    html += '</tbody></table>';
+    $("transitionTable").innerHTML = html;
+}
+
+function renderSeriesTable() {
+    const rows = Object.keys(SERIES_DEFS).map(k => {
+        const data = state.data[k] || [];
+        const imported = state.imported[k]?.length ? "yes" : "no";
+        const first = data[0], last = data[data.length - 1];
+        return `<tr><td>${k}</td><td>${data.length}</td><td>${first?.date || ""}</td><td>${last?.date || ""}</td><td>${last?.close ?? ""}</td><td>${imported}</td></tr>`;
+    }).join("");
+    $("seriesTable").innerHTML = `<table><thead><tr><th>Series</th><th>Rows</th><th>First</th><th>Last</th><th>Last Close</th><th>Imported</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function updateDataSummary() {
+    const n = state.aligned?.length || 0;
+    if (!n) {
+        $("dataSummary").textContent = "No aligned market data loaded.";
+        return;
+    }
+    const first = state.aligned[0], last = state.aligned[n - 1];
+    $("dataSummary").textContent = `${n} aligned ${getConfig().stepMode} periods, ${first.period} to ${last.period}`;
+}
+
+function renderAll() {
+    if (window.__suppressRender) return;
+    updateDataSummary();
+    renderCharts();
+}
+
+function saveState() {
+    saveSourceInputs();
+    const ids = [
+        "preset","paths","months","stepMode","seed","btcVolMode","strcModelMode","btcPressureN","macroPressureN","confidenceFragilityN",
+        "btcHoldings","btcStart","debt","commonMarketCap","prefNotional","cashReserve",
+        "divRate","debtInterest","mnavDanger","strcSpiral","reserveWarningMonths","forcedSaleMonths",
+        "maxMonthlyBtcSalePct","parDefenseN","reflexivityN","btcVolOverride","stressVolMult","btcDrift","macroWeight",
+        "liquidityBeta","premiumBeta"
+    ];
+    const payload = { version: VERSION, sources: state.sources, controls: {}, imported: state.imported };
+    for (const id of ids) payload.controls[id] = $(id).value;
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+    localStorage.setItem(IMPORT_KEY, JSON.stringify(state.imported || {}));
+    $("localStatus").textContent = "localStorage: saved";
+}
+
+function loadState() {
+    try {
+        const raw = localStorage.getItem(LS_KEY);
+        const importedRaw = localStorage.getItem(IMPORT_KEY);
+        if (importedRaw) state.imported = JSON.parse(importedRaw) || {};
+        if (!raw) return;
+        const payload = JSON.parse(raw);
+        if (payload.sources) state.sources = {...state.sources, ...payload.sources};
+        if (payload.imported) state.imported = {...state.imported, ...payload.imported};
+        if (payload.controls) {
+            for (const [id, val] of Object.entries(payload.controls)) {
+                if ($(id)) $(id).value = val;
+            }
+            if ($("parDefense")) $("parDefense").value = $("parDefenseN").value;
+            if ($("reflexivity")) $("reflexivity").value = $("reflexivityN").value;
+            if ($("btcPressure")) $("btcPressure").value = $("btcPressureN").value;
+            if ($("macroPressure")) $("macroPressure").value = $("macroPressureN").value;
+            if ($("confidenceFragility")) $("confidenceFragility").value = $("confidenceFragilityN").value;
+        }
+        $("localStatus").textContent = "localStorage: loaded";
+    } catch (e) {
+        $("localStatus").textContent = "localStorage: error";
+        log(`loadState failed: ${e.message}`);
+    }
+}
+
+function resetSources() {
+    state.sources = Object.fromEntries(Object.entries(SERIES_DEFS).map(([k,v]) => [k, v.url]));
+    initSources();
+    saveState();
+}
+
+function exportRun() {
+    const payload = {
+        version: VERSION,
+        exportedAt: new Date().toISOString(),
+        config: getConfig(),
+        sources: state.sources,
+        series: Object.fromEntries(Object.keys(SERIES_DEFS).map(k => [k, {
+            rows: state.data[k]?.length || 0,
+            first: state.data[k]?.[0] || null,
+            last: state.data[k]?.[state.data[k]?.length - 1] || null,
+            imported: !!state.imported[k]?.length
+        }])),
+        run: state.run ? {
+            probs: state.run.probs,
+            summary: state.run.summary,
+            eventCounts: state.run.eventCounts,
+            eventTimes: state.run.eventTimes,
+            terminal: state.run.terminal
+        } : null
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `strc-stress-lab-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function applyImport() {
+    const key = $("importSeries").value;
+    const file = $("importFile").files[0];
+    const finish = (text) => {
+        const rows = parseCsv(text);
+        if (rows.length < 2) throw new Error("not enough rows");
+        state.imported[key] = rows;
+        state.data[key] = rows;
+        localStorage.setItem(IMPORT_KEY, JSON.stringify(state.imported));
+        rebuildAligned();
+        renderAll();
+        saveState();
+        log(`${key}: imported ${rows.length} rows`);
+    };
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            try { finish(String(reader.result)); } catch(e) { log(`import failed: ${e.message}`); }
+        };
+        reader.readAsText(file);
+    } else {
+        try { finish($("importText").value); } catch(e) { log(`import failed: ${e.message}`); }
+    }
+}
+
+
+function setVal(id, value) {
+    if ($(id)) $(id).value = String(value);
+}
+function applyPreset() {
+    const name = $("preset").value;
+    if (name === "custom") return;
+    const p = PRESETS[name];
+    if (!p) return;
+    setVal("btcPressure", p.btcPressure); setVal("btcPressureN", p.btcPressure);
+    setVal("macroPressure", p.macroPressure); setVal("macroPressureN", p.macroPressure);
+    setVal("confidenceFragility", p.confidenceFragility); setVal("confidenceFragilityN", p.confidenceFragility);
+    setVal("stressVolMult", p.stressVolMult);
+    setVal("macroWeight", p.macroWeight);
+    setVal("liquidityBeta", p.liquidityBeta);
+    setVal("premiumBeta", p.premiumBeta);
+    setVal("parDefense", p.parDefense); setVal("parDefenseN", p.parDefense);
+    setVal("reflexivity", p.reflexivity); setVal("reflexivityN", p.reflexivity);
+    saveState();
+    renderAll();
+}
+function updateAutoManualVisibility() {
+    $("btcVolManualRow").classList.toggle("hidden", $("btcVolMode").value !== "manual");
+}
+function markCustomOnManualChange() {
+    if ($("preset").value !== "custom") $("preset").value = "custom";
+}
+
+function setupTabs() {
+    document.querySelectorAll(".tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            for (const id of ["dashboard","regimes","data","import","method"]) {
+                $(`tab-${id}`).classList.toggle("hidden", id !== btn.dataset.tab);
+            }
+            setTimeout(renderAll, 0);
+        });
+    });
+}
+
+function attachEvents() {
+    bindRange("parDefense", "parDefenseN");
+    bindRange("reflexivity", "reflexivityN");
+    bindRange("btcPressure", "btcPressureN");
+    bindRange("macroPressure", "macroPressureN");
+    bindRange("confidenceFragility", "confidenceFragilityN");
+    $("preset").addEventListener("change", applyPreset);
+    $("btcVolMode").addEventListener("change", updateAutoManualVisibility);
+    $("loadBtn").addEventListener("click", loadAllMarketData);
+    $("runBtn").addEventListener("click", simulate);
+    $("saveBtn").addEventListener("click", saveState);
+    $("exportBtn").addEventListener("click", exportRun);
+    $("resetSourcesBtn").addEventListener("click", resetSources);
+    $("openImportBtn").addEventListener("click", () => document.querySelector('[data-tab="import"]').click());
+    $("applyImportBtn").addEventListener("click", applyImport);
+    $("clearImportedBtn").addEventListener("click", () => {
+        const key = $("importSeries").value;
+        delete state.imported[key];
+        delete state.data[key];
+        localStorage.setItem(IMPORT_KEY, JSON.stringify(state.imported));
+        log(`${key}: imported override cleared`);
+        saveState();
+    });
+    $("clearAllImportedBtn").addEventListener("click", () => {
+        state.imported = {};
+        localStorage.removeItem(IMPORT_KEY);
+        log("all imported overrides cleared");
+        saveState();
+    });
+    for (const id of ["btcPressureN","macroPressureN","confidenceFragilityN","stressVolMult","macroWeight","liquidityBeta","premiumBeta","parDefenseN","reflexivityN"]) {
+        if ($(id)) $(id).addEventListener("input", markCustomOnManualChange);
+    }
+    $("stepMode").addEventListener("change", () => {
+        rebuildAligned();
+        renderAll();
+    });
+}
+
+function init() {
+    loadState();
+    initSources();
+    setupTabs();
+    attachEvents();
+    updateAutoManualVisibility();
+    renderAll();
+    log(`STRC Stress Lab ${VERSION} initialized`);
+}
+
+init();
+</script>
+</body>
+</html>
