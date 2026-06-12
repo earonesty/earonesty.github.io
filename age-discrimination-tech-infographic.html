@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 40+ Cut — Age Discrimination Charges &amp; the Tech Litigation Record</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#0D1521;
+    --ground-2:#101A29;
+    --panel:#152233;
+    --panel-2:#1A2A3E;
+    --line:rgba(255,255,255,.08);
+    --line-strong:rgba(255,255,255,.16);
+    --ink:#EAEFF5;
+    --ink-dim:#A7B4C6;
+    --ink-faint:#6B7A8E;
+    --coral:#FF5C49;      /* charges / the cut */
+    --amber:#F2B441;      /* money / settlements */
+    --teal:#54C7BE;       /* context lines */
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:var(--body);line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 80% -10%, rgba(255,92,73,.08), transparent 60%),
+      radial-gradient(800px 600px at -10% 20%, rgba(84,199,190,.06), transparent 55%);
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .mono{font-family:var(--mono)}
+  a{color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(242,180,65,.35)}
+  a:hover{border-bottom-color:var(--amber)}
+
+  /* ---- threshold motif ---- */
+  .threshold{
+    position:relative;height:1px;background:var(--line);
+    max-width:var(--maxw);margin:0 auto;
+  }
+  .threshold::before{
+    content:"≥ 40";position:absolute;right:24px;top:-9px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    color:var(--coral);background:var(--ground);padding:0 8px;
+  }
+  .dash{
+    height:0;border-top:1px dashed var(--line-strong);
+    margin:0;
+  }
+
+  /* ---- hero ---- */
+  header{padding:64px 0 36px;border-bottom:1px solid var(--line)}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--coral);margin:0 0 22px;
+    display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  }
+  .eyebrow span{color:var(--ink-faint)}
+  h1{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(38px,7vw,76px);line-height:.98;letter-spacing:-.02em;
+    margin:0 0 20px;
+  }
+  h1 .em{color:var(--coral)}
+  .dek{
+    font-size:clamp(16px,2.1vw,20px);color:var(--ink-dim);
+    max-width:62ch;margin:0 0 8px;
+  }
+  .dek b{color:var(--ink);font-weight:600}
+
+  /* ---- hero chart ---- */
+  .hero-chart{margin:40px 0 8px;background:var(--ground-2);
+    border:1px solid var(--line);border-radius:14px;padding:24px 18px 14px}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;
+    gap:16px;flex-wrap:wrap;padding:0 6px 14px}
+  .chart-title{font-family:var(--display);font-weight:600;font-size:17px;margin:0}
+  .chart-sub{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);letter-spacing:.04em}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .axis text{font-family:var(--mono);fill:var(--ink-faint);font-size:11px}
+  .gridline{stroke:var(--line)}
+
+  /* ---- stat strip ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;margin:34px 0 8px}
+  .stat{background:var(--ground-2);padding:22px 20px}
+  .stat .n{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);
+    line-height:1;letter-spacing:-.01em}
+  .stat .n.coral{color:var(--coral)} .stat .n.amber{color:var(--amber)} .stat .n.teal{color:var(--teal)}
+  .stat .l{font-size:12.5px;color:var(--ink-dim);margin-top:10px;line-height:1.4}
+  @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---- sections ---- */
+  section{padding:72px 0}
+  .sec-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:8px}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--coral);
+    border:1px solid var(--line-strong);border-radius:6px;padding:4px 8px;
+    margin-top:6px;white-space:nowrap}
+  h2{font-family:var(--display);font-weight:700;
+    font-size:clamp(26px,4vw,40px);line-height:1.04;letter-spacing:-.015em;margin:0}
+  .sec-dek{color:var(--ink-dim);max-width:64ch;margin:14px 0 0;font-size:15.5px}
+
+  /* ---- panel / chart blocks ---- */
+  .panel{background:var(--ground-2);border:1px solid var(--line);
+    border-radius:14px;padding:24px 22px;margin-top:30px}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;font-family:var(--mono);
+    font-size:11.5px;color:var(--ink-dim);margin-top:14px;padding:0 4px}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;
+    margin-right:7px;vertical-align:-1px}
+
+  /* ---- case cards ---- */
+  .cases{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  @media(max-width:780px){.cases{grid-template-columns:1fr}}
+  .case{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:24px 22px;position:relative;overflow:hidden}
+  .case::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--coral)}
+  .case.ad::after{background:var(--teal)}
+  .case .co{font-family:var(--display);font-weight:700;font-size:23px;margin:0 0 2px}
+  .case .docket{font-family:var(--mono);font-size:11px;color:var(--ink-faint);
+    letter-spacing:.03em;margin-bottom:16px;display:block}
+  .case .outcome{display:inline-flex;align-items:baseline;gap:8px;margin:0 0 14px;
+    font-family:var(--display);font-weight:700;font-size:30px;color:var(--amber);letter-spacing:-.01em}
+  .case .outcome.invest{color:var(--teal);font-size:19px}
+  .case .outcome .tag{font-family:var(--mono);font-weight:500;font-size:11px;
+    color:var(--ink-faint);letter-spacing:.05em}
+  .case p{margin:0 0 12px;font-size:14.5px;color:var(--ink-dim)}
+  .case p b{color:var(--ink);font-weight:600}
+  .case .quote{border-left:2px solid var(--coral);padding-left:14px;
+    font-size:14px;color:var(--ink);font-style:italic;margin:14px 0}
+  .case .resp{font-size:12.5px;color:var(--ink-faint);border-top:1px solid var(--line);
+    padding-top:12px;margin-top:14px}
+
+  /* ---- callout ---- */
+  .callout{background:linear-gradient(180deg,rgba(255,92,73,.07),rgba(255,92,73,.02));
+    border:1px solid rgba(255,92,73,.25);border-radius:14px;padding:24px 24px;margin-top:30px}
+  .callout h3{font-family:var(--display);font-size:16px;margin:0 0 10px;color:var(--coral);
+    letter-spacing:.01em}
+  .callout p{margin:0 0 10px;color:var(--ink-dim);font-size:14.5px}
+  .callout p:last-child{margin-bottom:0}
+
+  /* ---- sources ---- */
+  footer{border-top:1px solid var(--line);padding:48px 0 80px;color:var(--ink-faint)}
+  footer h3{font-family:var(--mono);font-size:12px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-dim);margin:0 0 16px}
+  .src{font-size:12.5px;line-height:1.7;color:var(--ink-faint);max-width:78ch}
+  .src b{color:var(--ink-dim)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+    .reveal.in{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">U.S. EEOC charge data <span>·</span> FY1997–FY2020 <span>·</span> The tech litigation record</p>
+    <h1>The <span class="em">40+</span> cut</h1>
+    <p class="dek">Federal law has protected workers <b>age 40 and older</b> since 1967. This is what the paper trail of age-discrimination charges actually shows — nationally, by state, and in the lawsuits that put Silicon Valley's hiring and layoff machines on the record.</p>
+
+    <div class="hero-chart reveal">
+      <div class="chart-head">
+        <p class="chart-title">Age-based charges filed with the EEOC, nationwide</p>
+        <p class="chart-sub">receipts per fiscal year · ADEA &amp; concurrent</p>
+      </div>
+      <svg id="trend" viewBox="0 0 1000 380" role="img" aria-label="Line chart of national age-based EEOC charge receipts by fiscal year, peaking at 24,582 in FY2008 and declining to 14,183 in FY2020."></svg>
+    </div>
+  </header>
+</div>
+
+<div class="wrap">
+  <div class="stats reveal">
+    <div class="stat"><div class="n coral">24,582</div><div class="l">Peak age charges in a single year — <b style="color:var(--ink)">FY2008</b>, as the recession hit older workers</div></div>
+    <div class="stat"><div class="n">~20K</div><div class="l">Age charges filed in a typical year over the past two decades</div></div>
+    <div class="stat"><div class="n amber">$76–90M</div><div class="l">Recovered for age-charge victims each year, FY2016–FY2020</div></div>
+    <div class="stat"><div class="n teal">3%</div><div class="l">Share of older workers who ever file a formal complaint — vast underreporting</div></div>
+  </div>
+</div>
+
+<div class="threshold"><div class="dash"></div></div>
+
+<div class="wrap">
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <div>
+        <h2>The national curve bends with the economy</h2>
+        <p class="sec-dek">Age charges spike when layoffs spike. Filings jumped to a record <b>24,582 in FY2008</b> and stayed above 22,000 through the recession years, then drifted down through the late 2010s — not because bias eased, but partly because charge volume fell across every category and older workers report at very low rates.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section style="padding-top:0">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <div>
+        <h2>Where the charges come from</h2>
+        <p class="sec-dek">EEOC does not break charges out by industry — so there is no official "tech-sector" count. What it does publish is geography. The big-population, big-tech states lead by raw volume; in <b>California</b>, age claims also make up an unusually high share — about a quarter — of all charges filed.</p>
+      </div>
+    </div>
+
+    <div class="panel reveal">
+      <div class="chart-head">
+        <p class="chart-title">Top states by age-based charges</p>
+        <p class="chart-sub">FY2013 · count of charges citing age</p>
+      </div>
+      <svg id="states" viewBox="0 0 1000 470" role="img" aria-label="Horizontal bar chart of top states by age-based charges in FY2013. Texas 2,029; California 1,799; Florida 1,641; Pennsylvania 1,182; Illinois 1,133; Georgia 936; Ohio 874; North Carolina 849; New York 845; Indiana 735."></svg>
+      <div class="legend">
+        <span><i style="background:var(--coral)"></i>charges citing age (FY2013)</span>
+        <span><i style="background:var(--amber)"></i>major tech-employment hub</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section style="padding-top:0">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <div>
+        <h2>The money the agency recovers</h2>
+        <p class="sec-dek">Through mediation, conciliation and settlements, the EEOC pulls back roughly <b>$76–90 million a year</b> for people whose charges include age claims — about a fifth to a quarter of all the money it recovers. This is administrative recovery only; it excludes private lawsuit settlements like the ones below.</p>
+      </div>
+    </div>
+
+    <div class="panel reveal">
+      <div class="chart-head">
+        <p class="chart-title">Age-based monetary benefits secured by the EEOC</p>
+        <p class="chart-sub">FY2016–FY2020 · $ millions · administrative process</p>
+      </div>
+      <svg id="money" viewBox="0 0 1000 320" role="img" aria-label="Bar chart of age-based monetary benefits: FY2016 $88.2M, FY2017 $90.1M, FY2018 $77.0M, FY2019 $75.7M, FY2020 $76.3M."></svg>
+    </div>
+  </section>
+</div>
+
+<div class="threshold"><div class="dash"></div></div>
+
+<div class="wrap">
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <div>
+        <h2>The tech record, on the docket</h2>
+        <p class="sec-dek">Where industry data is missing, litigation fills the gap. These are the most-documented age cases against major technology employers — settlements, an investigative exposé, and the platform case that exposed age-targeted job ads. Companies denied wrongdoing in every instance.</p>
+      </div>
+    </div>
+
+    <div class="cases">
+
+      <article class="case reveal">
+        <p class="co">Google</p>
+        <span class="docket">Heath v. Google LLC · No. 15-cv-01824 · N.D. Cal. · settled Jul 2019</span>
+        <p class="outcome">$11M <span class="tag">/ 227 applicants 40+</span></p>
+        <p>A class of <b>227 applicants over 40</b> alleged Google systematically rejected them for site-reliability, software and systems engineering roles. Court filings noted Google's <b>median employee age was 29</b> while it grew past 30,000 staff.</p>
+        <p>Settlement added manager training, a recruiting subcommittee on age diversity, and complaint-investigation requirements — about <b>$35K per claimant</b>.</p>
+        <p class="resp">Google denied any intentional age discrimination and said applicants lacked the required technical aptitude.</p>
+      </article>
+
+      <article class="case reveal">
+        <p class="co">HP &amp; HPE</p>
+        <span class="docket">Forsyth v. HP Inc. · No. 5:16-cv-04775 · N.D. Cal. · settled 2023</span>
+        <p class="outcome">$18M <span class="tag">/ ~7-year fight</span></p>
+        <p>Former employees alleged HP's 2012 <b>"Workforce Reduction Plan"</b> disproportionately cut workers 40+ to remake the company as "younger" — leadership reportedly described shifting a "labor diamond" into a <b>"labor pyramid."</b></p>
+        <p>The case ran so long the lead plaintiff, laid off at 62, did not live to see it resolved.</p>
+        <p class="resp">HP and HPE denied the allegations and any wrongdoing or liability.</p>
+      </article>
+
+      <article class="case reveal">
+        <p class="co">IBM</p>
+        <span class="docket">ProPublica/Mother Jones (2018) · Rusis, Rodriquez, Rumsey v. IBM</span>
+        <p class="outcome invest">20,000+ <span class="tag">U.S. workers 40+ cut, 2013–2018 (est.)</span></p>
+        <p>A 2018 investigation estimated IBM separated <b>more than 20,000</b> U.S. employees age 40+ over six years. One later suit surfaced an executive email about inviting the <b>"dinobabies"</b> to leave and making them an "extinct species."</p>
+        <p class="quote">IBM moved age claims out of court by requiring <b>individual arbitration</b> in severance waivers — and stopped disclosing the ages of those laid off.</p>
+        <p class="resp">IBM denies wrongdoing; it settled the "dinobabies" matter and continues to litigate arbitration disputes.</p>
+      </article>
+
+      <article class="case reveal">
+        <p class="co">Intel</p>
+        <span class="docket">2015–2016 reductions in force · EEOC investigation (Seattle/SF)</span>
+        <p class="outcome invest">median age 49 <span class="tag">vs ~42 for those retained</span></p>
+        <p>In one <b>2,300-person 2016 layoff</b>, internal documents showed the median age of those cut was 49 — about seven years older than staff who stayed. Analyses indicated over-40 workers were roughly twice as likely to be selected.</p>
+        <p>The EEOC investigated and found <b>reasonable cause</b> for at least one claimant; several reached confidential resolutions.</p>
+        <p class="resp">Intel said cuts were based on skills and business needs, not age or other demographics.</p>
+      </article>
+
+      <article class="case ad reveal" style="grid-column:1/-1">
+        <p class="co">Facebook ad targeting &amp; the CWA charges</p>
+        <span class="docket">Communications Workers of America v. T-Mobile US &amp; Amazon · No. 17-cv-07232 · N.D. Cal.</span>
+        <p class="outcome invest">66 employers charged <span class="tag">/ platform overhaul + 7 EEOC "reasonable cause" findings</span></p>
+        <p>Since 2018, the CWA and workers filed charges against <b>more than 60 employers</b> for using Facebook's tools to <b>exclude older workers</b> (and women) from even seeing job ads — discrimination built into the ad-delivery layer, not just the hiring decision.</p>
+        <p>In <b>March 2019</b> Facebook settled, agreeing to strip age, gender and other targeting from job, housing and credit ads. In <b>September 2019</b> the EEOC issued historic <b>reasonable-cause findings</b> against seven employers (including Capital One, Edward Jones and Enterprise Holdings) for the practice.</p>
+        <p class="resp">The settlement reshaped how a major platform delivers employment ads nationwide.</p>
+      </article>
+
+    </div>
+  </section>
+</div>
+
+<div class="threshold"><div class="dash"></div></div>
+
+<div class="wrap">
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <div>
+        <h2>Read the data honestly</h2>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <h3>What this can and cannot show</h3>
+      <p><b style="color:var(--ink)">There is no official "tech industry" charge count.</b> The EEOC publishes charges by basis, by year, and by state — but not by industry sector. Any figure claiming "X age-discrimination charges in tech" is an estimate, not an EEOC statistic. This graphic keeps the national/state data and the company litigation record separate on purpose.</p>
+      <p><b style="color:var(--ink)">Charges undercount the problem.</b> Surveys find a large majority of older workers have seen or experienced age bias, while only about 3% ever file a formal complaint. Falling charge counts after 2008 track a decline across <em>all</em> discrimination categories, not proof that bias fell.</p>
+      <p><b style="color:var(--ink)">A charge is an allegation.</b> Filing a charge is not a finding of discrimination, and every company above denied wrongdoing. Settlements resolved claims without admissions of liability.</p>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <footer>
+    <h3>Sources &amp; method</h3>
+    <p class="src">
+      <b>National age-based charge receipts (FY1997–FY2020):</b> U.S. EEOC enforcement &amp; litigation statistics. FY1997–FY2012 figures as reproduced in the EEOC "Charge Statistics" table; FY2013 from the EEOC state-and-basis table (national age total 21,396); FY2016–FY2020 from the EEOC "Age-Based Charge Data" data sheet (20,857 / 18,376 / 16,911 / 15,573 / 14,183). FY2014 (20,588) and FY2015 (20,144) per EEOC enforcement tables. "Receipts" include charges filed under the ADEA plus concurrent filings; private sector and state/local government only (excludes federal-sector complaints and state FEPA filings).<br><br>
+      <b>State counts (FY2013):</b> EEOC "Charge Receipts by State and Basis." State totals do not sum exactly to the national figure due to EEOC run-time/process notes. <b>Age-based monetary benefits (FY2016–FY2020):</b> EEOC "Age-Based Charge Data" — administrative recovery only; excludes additional monetary benefits from litigation.<br><br>
+      <b>Litigation:</b> Heath v. Google LLC (N.D. Cal.); Forsyth v. HP Inc., No. 5:16-cv-04775 (N.D. Cal.); ProPublica/Mother Jones (2018) and Rusis / Rodriquez / Rumsey v. IBM; Wall Street Journal reporting and EEOC investigation re: Intel 2015–2016 RIFs; Communications Workers of America v. T-Mobile US &amp; Amazon, No. 17-cv-07232 (N.D. Cal.) and EEOC reasonable-cause findings (Sept 2019). Underreporting figure: EEOC, "The State of Age Discrimination and Older Workers in the U.S. 50 Years After the ADEA."<br><br>
+      Compiled June 2026. Figures are point-in-time and may be revised by the EEOC.
+    </p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function txt(p,x,y,s,a){var t=el("text",a||{});t.setAttribute("x",x);t.setAttribute("y",y);t.textContent=s;p.appendChild(t);return t;}
+
+  /* ---------- 1) NATIONAL TREND LINE ---------- */
+  (function(){
+    var svg=document.getElementById("trend");
+    var data=[
+      [1997,15785],[1998,15191],[1999,14141],[2000,16008],[2001,17405],[2002,19921],
+      [2003,19124],[2004,17837],[2005,16585],[2006,16548],[2007,19103],[2008,24582],
+      [2009,22778],[2010,23264],[2011,23465],[2012,22857],[2013,21396],[2014,20588],
+      [2015,20144],[2016,20857],[2017,18376],[2018,16911],[2019,15573],[2020,14183]
+    ];
+    var W=1000,H=380,L=52,R=24,T=28,B=46;
+    var x0=L,x1=W-R,y0=T,y1=H-B;
+    var maxV=26000,minV=12000;
+    var X=function(i){return x0+(x1-x0)*(i/(data.length-1));};
+    var Y=function(v){return y1-(y1-y0)*((v-minV)/(maxV-minV));};
+
+    // gridlines + y labels
+    [12000,16000,20000,24000].forEach(function(v){
+      svg.appendChild(el("line",{x1:x0,y1:Y(v),x2:x1,y2:Y(v),class:"gridline"}));
+      var t=txt(svg,x0-10,Y(v)+4,(v/1000)+"K",{"text-anchor":"end"});t.setAttribute("class","");t.style.fontFamily="var(--mono)";t.style.fontSize="11px";t.style.fill="#6B7A8E";
+    });
+
+    // area
+    var dArea="M"+X(0)+" "+y1;
+    data.forEach(function(d,i){dArea+=" L"+X(i)+" "+Y(d[1]);});
+    dArea+=" L"+X(data.length-1)+" "+y1+" Z";
+    var grad=el("linearGradient",{id:"gTrend",x1:"0",y1:"0",x2:"0",y2:"1"});
+    grad.appendChild(el("stop",{offset:"0%","stop-color":"#FF5C49","stop-opacity":".28"}));
+    grad.appendChild(el("stop",{offset:"100%","stop-color":"#FF5C49","stop-opacity":"0"}));
+    var defs=el("defs",{});defs.appendChild(grad);svg.appendChild(defs);
+    svg.appendChild(el("path",{d:dArea,fill:"url(#gTrend)"}));
+
+    // line
+    var d="M"+X(0)+" "+Y(data[0][1]);
+    for(var i=1;i<data.length;i++)d+=" L"+X(i)+" "+Y(data[i][1]);
+    svg.appendChild(el("path",{d:d,fill:"none",stroke:"#FF5C49","stroke-width":"2.6","stroke-linejoin":"round","stroke-linecap":"round"}));
+
+    // x labels (every few yrs)
+    data.forEach(function(dp,i){
+      if(dp[0]%4===1 || dp[0]===2020){
+        var t=txt(svg,X(i),y1+24,"’"+String(dp[0]).slice(2),{"text-anchor":"middle"});
+        t.style.fontFamily="var(--mono)";t.style.fontSize="11px";t.style.fill="#6B7A8E";
+      }
+    });
+
+    // peak marker 2008
+    var pi=11;
+    svg.appendChild(el("circle",{cx:X(pi),cy:Y(24582),r:"5",fill:"#FF5C49",stroke:"#0D1521","stroke-width":"2"}));
+    var pk=txt(svg,X(pi),Y(24582)-16,"24,582",{"text-anchor":"middle"});
+    pk.style.fontFamily="var(--display)";pk.style.fontWeight="700";pk.style.fontSize="16px";pk.style.fill="#FF5C49";
+    var pk2=txt(svg,X(pi),Y(24582)-32,"FY2008 PEAK",{"text-anchor":"middle"});
+    pk2.style.fontFamily="var(--mono)";pk2.style.fontSize="10px";pk2.style.letterSpacing=".1em";pk2.style.fill="#6B7A8E";
+
+    // endpoint 2020
+    var ei=data.length-1;
+    svg.appendChild(el("circle",{cx:X(ei),cy:Y(14183),r:"4.5",fill:"#0D1521",stroke:"#FF5C49","stroke-width":"2"}));
+    var ep=txt(svg,X(ei),Y(14183)+26,"14,183",{"text-anchor":"end"});
+    ep.style.fontFamily="var(--display)";ep.style.fontWeight="700";ep.style.fontSize="14px";ep.style.fill="#EAEFF5";
+  })();
+
+  /* ---------- 2) STATE BARS ---------- */
+  (function(){
+    var svg=document.getElementById("states");
+    var data=[ // [state, age charges FY2013, isTechHub]
+      ["Texas",2029,true],["California",1799,true],["Florida",1641,false],
+      ["Pennsylvania",1182,false],["Illinois",1133,false],["Georgia",936,true],
+      ["Ohio",874,false],["North Carolina",849,true],["New York",845,true],["Indiana",735,false]
+    ];
+    var W=1000,H=470,L=140,R=90,T=10,B=10;
+    var max=2100;
+    var rowH=(H-T-B)/data.length;
+    var barH=26;
+    var X=function(v){return L+(W-L-R)*(v/max);};
+    data.forEach(function(d,i){
+      var cy=T+i*rowH+rowH/2;
+      // label
+      var lt=txt(svg,L-14,cy+4,d[0],{"text-anchor":"end"});
+      lt.style.fontFamily="var(--body)";lt.style.fontSize="14px";lt.style.fontWeight="500";
+      lt.style.fill=d[2]?"#F2B441":"#EAEFF5";
+      // track
+      svg.appendChild(el("rect",{x:L,y:cy-barH/2,width:(W-L-R),height:barH,rx:5,fill:"rgba(255,255,255,.04)"}));
+      // bar
+      var b=el("rect",{x:L,y:cy-barH/2,width:0,height:barH,rx:5,fill:d[2]?"#F2B441":"#FF5C49"});
+      svg.appendChild(b);
+      b.dataset.w=(X(d[1])-L);
+      b.classList.add("statebar");
+      // value
+      var vt=txt(svg,X(d[1])+10,cy+4,d[1].toLocaleString(),{"text-anchor":"start"});
+      vt.style.fontFamily="var(--mono)";vt.style.fontSize="12.5px";vt.style.fontWeight="500";vt.style.fill="#A7B4C6";
+    });
+    // animate widths when visible
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){
+        svg.querySelectorAll(".statebar").forEach(function(b,i){
+          var w=+b.dataset.w;
+          if(matchMedia("(prefers-reduced-motion:reduce)").matches){b.setAttribute("width",w);return;}
+          b.style.transition="width .9s cubic-bezier(.2,.7,.2,1)";b.style.transitionDelay=(i*60)+"ms";
+          requestAnimationFrame(function(){b.setAttribute("width",w);});
+        });
+        io.disconnect();
+      }});
+    },{threshold:.3});
+    io.observe(svg);
+  })();
+
+  /* ---------- 3) MONEY BARS ---------- */
+  (function(){
+    var svg=document.getElementById("money");
+    var data=[["FY2016",88.2],["FY2017",90.1],["FY2018",77.0],["FY2019",75.7],["FY2020",76.3]];
+    var W=1000,H=320,L=20,R=20,T=40,B=44;
+    var max=100;
+    var n=data.length;
+    var gap=40;
+    var bw=(W-L-R-gap*(n-1))/n;
+    var y0=T,y1=H-B;
+    var Y=function(v){return y1-(y1-y0)*(v/max);};
+    // baseline
+    svg.appendChild(el("line",{x1:L,y1:y1,x2:W-R,y2:y1,class:"gridline"}));
+    data.forEach(function(d,i){
+      var x=L+i*(bw+gap);
+      var h=y1-Y(d[1]);
+      var b=el("rect",{x:x,y:y1,width:bw,height:0,rx:6,fill:"#F2B441","fill-opacity":i%2?".82":"1"});
+      svg.appendChild(b);b.dataset.h=h;b.dataset.y=Y(d[1]);b.classList.add("moneybar");
+      var v=txt(svg,x+bw/2,Y(d[1])-12,"$"+d[1].toFixed(1)+"M",{"text-anchor":"middle"});
+      v.style.fontFamily="var(--display)";v.style.fontWeight="700";v.style.fontSize="17px";v.style.fill="#F2B441";
+      var lab=txt(svg,x+bw/2,y1+26,d[0],{"text-anchor":"middle"});
+      lab.style.fontFamily="var(--mono)";lab.style.fontSize="12px";lab.style.fill="#6B7A8E";
+    });
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){
+        svg.querySelectorAll(".moneybar").forEach(function(b,i){
+          var h=+b.dataset.h,y=+b.dataset.y;
+          if(matchMedia("(prefers-reduced-motion:reduce)").matches){b.setAttribute("height",h);b.setAttribute("y",y);return;}
+          b.style.transition="height .8s cubic-bezier(.2,.7,.2,1),y .8s cubic-bezier(.2,.7,.2,1)";
+          b.style.transitionDelay=(i*80)+"ms";
+          requestAnimationFrame(function(){b.setAttribute("height",h);b.setAttribute("y",y);});
+        });
+        io.disconnect();
+      }});
+    },{threshold:.3});
+    io.observe(svg);
+  })();
+
+  /* ---------- reveal on scroll ---------- */
+  if(!matchMedia("(prefers-reduced-motion:reduce)").matches){
+    var ro=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");ro.unobserve(e.target);}});
+    },{threshold:.12});
+    document.querySelectorAll(".reveal").forEach(function(n){ro.observe(n);});
+  } else {
+    document.querySelectorAll(".reveal").forEach(function(n){n.classList.add("in");});
+  }
+})();
+</script>
+</body>
+</html>

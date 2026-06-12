@@ -29,6 +29,7 @@ Personal:
 
 Misc:
 
+ * [Age Discrimination in Tech Infographic](https://earonesty.github.io/age-discrimination-tech-infographic.html)
  * [Bitcoin Whitepaper](bitcoin.pdf)
  * [Is Lambda Sentient](is-lamda-sentient-an-interview.pdf)
  * [Generate secp256k1 public/private keypair](https://jsfiddle.net/simulx/w4Lgfv0o/25/show)
