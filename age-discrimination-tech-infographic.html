@@ -97,6 +97,10 @@
   .stat .n.coral{color:var(--coral)} .stat .n.amber{color:var(--amber)} .stat .n.teal{color:var(--teal)}
   .stat .l{font-size:12.5px;color:var(--ink-dim);margin-top:10px;line-height:1.4}
   @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stats.two{grid-template-columns:repeat(2,1fr);max-width:700px}
+  .fineprint{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);
+    line-height:1.65;margin:18px 4px 0;max-width:84ch}
+  .fineprint b{color:var(--ink-dim)}
 
   /* ---- sections ---- */
   section{padding:72px 0}
@@ -252,6 +256,39 @@
     <div class="sec-head">
       <span class="sec-num">04</span>
       <div>
+        <h2>Is tech actually different?</h2>
+        <p class="sec-dek">You can't filter EEOC charges by employer — those are confidential. So instead, compare <b>who tech actually employs</b>. Across 18 well-known tech firms, the median worker is about 30. <b>Not one reaches the U.S. workforce median of ~42</b>, and most sit below even the youngest major industry sector. The Google class action cited exactly this number: a median employee age of 29.</p>
+      </div>
+    </div>
+
+    <div class="stats two reveal">
+      <div class="stat"><div class="n coral">0 of 18</div><div class="l">Named tech firms whose median worker reaches the U.S. workforce median age</div></div>
+      <div class="stat"><div class="n amber">~10 yrs</div><div class="l">Gap between the typical big-tech median (~31) and the national workforce (~42)</div></div>
+    </div>
+
+    <div class="panel reveal">
+      <div class="chart-head">
+        <p class="chart-title">Median employee age — 18 named tech employers vs. the U.S. workforce</p>
+        <p class="chart-sub">PayScale survey (c. 2016) · age in years</p>
+      </div>
+      <svg id="ages" viewBox="0 0 1000 600" role="img" aria-label="Dot plot of median employee age at 18 tech companies, ranging from 29 (Facebook, LinkedIn, SpaceX) to 38 (HP), all below the U.S. workforce median of 41.7. Most sit below the youngest major industry sector at 32.3."></svg>
+      <div class="legend">
+        <span><i style="background:var(--coral)"></i>company median age</span>
+        <span><i style="background:var(--amber)"></i>U.S. workforce median (BLS, 41.7)</span>
+        <span><i style="background:var(--teal)"></i>youngest major industry: leisure &amp; hospitality (32.3)</span>
+      </div>
+      <p class="fineprint"><b>Read this carefully:</b> these are workforce-composition figures, not charge data. A younger median age is not proof of discrimination — it reflects company age, growth rate, hiring and attrition. But it is the exact structural gap the lawsuits point to. Median ages are from PayScale's survey of ~33,500 tech workers (non-retail/sales), c. 2016 — the most-cited cross-company dataset, but dated and self-reported. The U.S. workforce median (BLS, 41.7 in 2024) has been essentially flat since 2014, so the comparison holds across the period.</p>
+    </div>
+  </section>
+</div>
+
+<div class="threshold"><div class="dash"></div></div>
+
+<div class="wrap">
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <div>
         <h2>The tech record, on the docket</h2>
         <p class="sec-dek">Where industry data is missing, litigation fills the gap. These are the most-documented age cases against major technology employers — settlements, an investigative exposé, and the platform case that exposed age-targeted job ads. Companies denied wrongdoing in every instance.</p>
       </div>
@@ -313,7 +350,7 @@
 <div class="wrap">
   <section>
     <div class="sec-head">
-      <span class="sec-num">05</span>
+      <span class="sec-num">06</span>
       <div>
         <h2>Read the data honestly</h2>
       </div>
@@ -335,6 +372,7 @@
       <b>National age-based charge receipts (FY1997–FY2020):</b> U.S. EEOC enforcement &amp; litigation statistics. FY1997–FY2012 figures as reproduced in the EEOC "Charge Statistics" table; FY2013 from the EEOC state-and-basis table (national age total 21,396); FY2016–FY2020 from the EEOC "Age-Based Charge Data" data sheet (20,857 / 18,376 / 16,911 / 15,573 / 14,183). FY2014 (20,588) and FY2015 (20,144) per EEOC enforcement tables. "Receipts" include charges filed under the ADEA plus concurrent filings; private sector and state/local government only (excludes federal-sector complaints and state FEPA filings).<br><br>
       <b>State counts (FY2013):</b> EEOC "Charge Receipts by State and Basis." State totals do not sum exactly to the national figure due to EEOC run-time/process notes. <b>Age-based monetary benefits (FY2016–FY2020):</b> EEOC "Age-Based Charge Data" — administrative recovery only; excludes additional monetary benefits from litigation.<br><br>
       <b>Litigation:</b> Heath v. Google LLC (N.D. Cal.); Forsyth v. HP Inc., No. 5:16-cv-04775 (N.D. Cal.); ProPublica/Mother Jones (2018) and Rusis / Rodriquez / Rumsey v. IBM; Wall Street Journal reporting and EEOC investigation re: Intel 2015–2016 RIFs; Communications Workers of America v. T-Mobile US &amp; Amazon, No. 17-cv-07232 (N.D. Cal.) and EEOC reasonable-cause findings (Sept 2019). Underreporting figure: EEOC, "The State of Age Discrimination and Older Workers in the U.S. 50 Years After the ADEA."<br><br>
+      <b>Workforce median age (tech vs. overall):</b> Company median ages from PayScale, "Top Tech Companies Compared" (survey of ~33,500 non-retail/sales tech workers, c. 2016). U.S. labor-force median age (41.7, 2024; ~42.0 in 2014) from BLS Employment Projections, "Median age of the labor force." Youngest major industry sector (leisure &amp; hospitality, 32.3, 2024) per BLS via USAFacts. Workforce-composition figures are not charge data and are not evidence of discrimination.<br><br>
       Compiled June 2026. Figures are point-in-time and may be revised by the EEOC.
     </p>
   </footer>
@@ -486,6 +524,59 @@
         io.disconnect();
       }});
     },{threshold:.3});
+    io.observe(svg);
+  })();
+
+  /* ---------- 4) WORKFORCE AGE vs OVERALL ---------- */
+  (function(){
+    var svg=document.getElementById("ages");
+    if(!svg) return;
+    var data=[["HP",38],["Oracle",37],["IBM",36],["Microsoft",33],["Qualcomm",33],
+      ["Cisco",33],["eBay",33],["Samsung",33],["Intel",32],["Adobe",31],["Apple",31],
+      ["Amazon",30],["Google",30],["Salesforce",30],["Tesla",30],["LinkedIn",29],
+      ["SpaceX",29],["Facebook",29]];
+    var W=1000,H=600,L=132,R=58,T=60,B=24;
+    var aMin=26,aMax=44;
+    var X=function(a){return L+(W-L-R)*((a-aMin)/(aMax-aMin));};
+    var n=data.length, rowH=(H-T-B)/n;
+
+    // x ticks
+    for(var a=26;a<=44;a+=2){
+      svg.appendChild(el("line",{x1:X(a),y1:T-4,x2:X(a),y2:H-B,class:"gridline"}));
+      var xt=txt(svg,X(a),T-12,a,{"text-anchor":"middle"});
+      xt.style.fontFamily="var(--mono)";xt.style.fontSize="11px";xt.style.fill="#6B7A8E";
+    }
+    // youngest-industry reference (teal dashed)
+    svg.appendChild(el("line",{x1:X(32.3),y1:T-4,x2:X(32.3),y2:H-B,stroke:"#54C7BE","stroke-width":"1.5","stroke-dasharray":"3 4","stroke-opacity":".75"}));
+    var t1=txt(svg,X(32.3),T-30,"32.3",{"text-anchor":"middle"});
+    t1.style.fontFamily="var(--mono)";t1.style.fontSize="11px";t1.style.fill="#54C7BE";
+    // US workforce median reference (amber solid)
+    svg.appendChild(el("line",{x1:X(41.7),y1:T-4,x2:X(41.7),y2:H-B,stroke:"#F2B441","stroke-width":"2"}));
+    var t2=txt(svg,X(41.7),T-30,"U.S. workforce 41.7",{"text-anchor":"end"});
+    t2.style.fontFamily="var(--mono)";t2.style.fontSize="11px";t2.style.fill="#F2B441";
+
+    data.forEach(function(d,i){
+      var cy=T+i*rowH+rowH/2;
+      var lt=txt(svg,L-14,cy+4,d[0],{"text-anchor":"end"});
+      lt.style.fontFamily="var(--body)";lt.style.fontSize="13.5px";lt.style.fontWeight="500";lt.style.fill="#EAEFF5";
+      // connector
+      svg.appendChild(el("line",{x1:X(aMin),y1:cy,x2:X(d[1]),y2:cy,stroke:"rgba(255,92,73,.32)","stroke-width":"2"}));
+      // dot (fades in)
+      var dot=el("circle",{cx:X(d[1]),cy:cy,r:"5.5",fill:"#FF5C49",stroke:"#0D1521","stroke-width":"2","fill-opacity":"0"});
+      svg.appendChild(dot);dot.classList.add("agedot");
+      var vt=txt(svg,X(d[1])+12,cy+4,d[1],{"text-anchor":"start"});
+      vt.style.fontFamily="var(--mono)";vt.style.fontSize="12px";vt.style.fill="#A7B4C6";
+    });
+
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){
+      var reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+      svg.querySelectorAll(".agedot").forEach(function(dot,i){
+        if(reduce){dot.setAttribute("fill-opacity","1");return;}
+        dot.style.transition="fill-opacity .5s ease";dot.style.transitionDelay=(i*45)+"ms";
+        requestAnimationFrame(function(){dot.setAttribute("fill-opacity","1");});
+      });
+      io.disconnect();
+    }});},{threshold:.15});
     io.observe(svg);
   })();
 
